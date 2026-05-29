@@ -31,7 +31,10 @@ async function fetchWithTimeout(url: string, options: RequestInit): Promise<Resp
     if (err instanceof DOMException && err.name === 'AbortError') {
       throw new AIError('A requisição excedeu o tempo limite. Tente novamente.', 'timeout')
     }
-    throw new AIError('Erro de conexão. Verifique sua internet.', 'network')
+    throw new AIError(
+      'Erro de conexão. Se estiver usando OpenAI ou Anthropic, eles não aceitam chamadas diretas do navegador (CORS). Use Groq ou Google Gemini, ou configure um proxy.',
+      'network',
+    )
   } finally {
     clearTimeout(timeoutId)
   }
