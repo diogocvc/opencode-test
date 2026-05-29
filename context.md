@@ -13,6 +13,7 @@ Editor de texto baseado em blocos atômicos com assistência de IA. Cada bloco �
 - **Testes:** Vitest + @testing-library/react + @testing-library/jest-dom + jsdom
 - **CI:** GitHub Actions (`.github/workflows/ci.yml` — lint → test → build)
 - **Hospedagem:** Vercel (plano free, build estático — sem backend)
+- **GitHub:** `diogocvc/opencode-test` (HTTPS)
 
 ## Decisões de Arquitetura
 
@@ -20,7 +21,7 @@ Editor de texto baseado em blocos atômicos com assistência de IA. Cada bloco �
 - Usuário seleciona o provedor de IA e insere sua própria API Key
 - Chave armazenada apenas no localStorage, nunca enviada a servidor
 - Chamadas feitas diretamente do frontend para a API do provedor
-- Provedores suportados: OpenAI, Anthropic, Groq, Google Gemini
+- **Apenas Groq e Google Gemini funcionam** direto do navegador (CORS). OpenAI e Anthropic bloqueiam chamadas browser-side.
 - Custo de API zero para o desenvolvedor
 
 ### Streaming (SSE)
@@ -66,7 +67,7 @@ src/
 │   └── setup.ts            # Configuração do Vitest (import @testing-library/jest-dom)
 ├── components/
 │   ├── Block.tsx           # Bloco individual: textarea, drag handle, ↑↓, seleção, ações, streaming indicator
-│   ├── Block.test.tsx      # 16 testes
+│   ├── Block.test.tsx      # 18 testes
 │   ├── SettingsModal.tsx   # Modal de configuração do provedor e API Key
 │   ├── Toast.tsx           # Componente de notificação toast
 │   └── Toast.test.tsx      # 4 testes
@@ -74,14 +75,15 @@ src/
 ├── App.test.tsx            # 13 testes
 ├── main.tsx                # Entry point
 ├── index.css               # @import "tailwindcss" + @variant dark
-├── store.test.ts           # 23 testes (blocos, seleção, settings, dark mode, toasts, undo)
+├── store.test.ts           # 24 testes (blocos, seleção, settings, dark mode, toasts, undo)
 ├── ai.test.ts              # 21 testes (prompts, callAI, callAIStream 4 provedores, erros)
 └── assets/                 # Ícones SVG e hero.png
 ```
 
 ## Fluxo de Teclado
 
-- **Enter** → cria novo bloco abaixo do atual
+- **Enter** → cria novo bloco abaixo do atual (cursor foca no novo bloco)
+- **Shift+Enter** → quebra de linha dentro do mesmo bloco
 - **Cmd+Enter** (ou Ctrl+Enter) → quebra de linha dentro do mesmo bloco
 - **Ctrl+Z / Cmd+Z** → undo (restaura snapshot anterior)
 
@@ -126,9 +128,21 @@ src/
 - Atalho Ctrl+Z / Cmd+Z
 - Verificado com 73 testes
 
+### Fase 5 — Deploy na Vercel (adicionado)
+- `vercel.json` com rewrite SPA (`/*` → `/index.html`) para client-side routing
+- Repositório criado em `diogocvc/opencode-test`, push via HTTPS
+- Deploy automático via Vercel (conectado ao GitHub)
+- Build e testes verificados (75 testes)
+
+### Fase 6 — Correções de Bugs (adicionado)
+- **Enter foca novo bloco**: `focusedBlockId` no store + `useEffect` no Block
+- **Shift+Enter quebra linha**: condicional `!e.shiftKey` adicionada
+- **Fundo responsivo**: layout com wrapper full-width + conteúdo `max-w-3xl mx-auto`
+- **CORS**: OpenAI e Anthropic removidos dos provedores (não funcionam sem backend). Padrão alterado para Groq.
+
 ## Pendentes / Próximos Passos
 
-- **Fase 5: Deploy na Vercel** — configurar `vercel.json` (SPA fallback), conectar GitHub
+- Adicionar mais provedores compatíveis com CORS (DeepSeek, Perplexity, Together, etc.)
 - Modo claro/escuro: seguir preferência do sistema como fallback inicial (`prefers-color-scheme`)
 - Melhorias no undo: feedback visual de quantos passos atrás, botão de redo (Ctrl+Shift+Z)
 - Streaming: tratamento de erro parcial se stream falha no meio
