@@ -198,9 +198,10 @@ export default function App() {
   const hasSelection = selectedBlockIds.length > 0
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col bg-gray-50 px-4 dark:bg-gray-900">
-      <header className="flex items-center justify-between border-b border-gray-200 py-4 dark:border-gray-700">
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="mx-auto flex max-w-3xl flex-col px-4">
+        <header className="flex items-center justify-between border-b border-gray-200 py-4 dark:border-gray-700">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
           Editor de Blocos
         </h1>
         <div className="flex items-center gap-2">
@@ -348,6 +349,7 @@ export default function App() {
           </button>
         </div>
       </footer>
+      </div>
 
       <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <Toast />

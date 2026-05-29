@@ -21,8 +21,9 @@ describe('store', () => {
 
   it('adds a block after a given block', () => {
     useStore.getState().addBlock('block-1')
-    const { blocks } = useStore.getState()
+    const { blocks, focusedBlockId } = useStore.getState()
     expect(blocks).toHaveLength(2)
+    expect(focusedBlockId).toBe(blocks[1].id)
   })
 
   it('adds a block at the end when no afterId', () => {

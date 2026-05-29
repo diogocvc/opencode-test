@@ -45,6 +45,8 @@ export interface Store {
   darkMode: boolean
   toasts: Toast[]
   undoStack: Block[][]
+  focusedBlockId: string | null
+  setFocusedBlockId: (id: string | null) => void
   addBlock: (afterId?: string) => void
   removeBlock: (id: string) => void
   updateBlock: (id: string, text: string) => void
@@ -72,6 +74,9 @@ export const useStore = create<Store>()(
       darkMode: false,
       toasts: [],
       undoStack: [],
+      focusedBlockId: null,
+
+      setFocusedBlockId: (id) => set({ focusedBlockId: id }),
 
       addBlock: (afterId) =>
         set((s) => {
@@ -84,6 +89,7 @@ export const useStore = create<Store>()(
           return {
             blocks,
             undoStack: [s.blocks, ...s.undoStack].slice(0, MAX_UNDO),
+            focusedBlockId: newBlock.id,
           }
         }),
 

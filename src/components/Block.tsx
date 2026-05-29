@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function Block({ block, index, isSelected, total }: Props) {
-  const { updateBlock, removeBlock, moveBlock, toggleSelectBlock, addBlock, streamingBlockId } = useStore()
+  const { updateBlock, removeBlock, moveBlock, toggleSelectBlock, addBlock, streamingBlockId, focusedBlockId, setFocusedBlockId } = useStore()
   const isStreaming = streamingBlockId === block.id
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -25,9 +25,16 @@ export default function Block({ block, index, isSelected, total }: Props) {
     opacity: isDragging ? 0.4 : 1,
   }
 
+  useEffect(() => {
+    if (focusedBlockId === block.id && textareaRef.current) {
+      textareaRef.current.focus()
+      setFocusedBlockId(null)
+    }
+  }, [focusedBlockId, block.id, setFocusedBlockId])
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey) {
+      if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
         e.preventDefault()
         addBlock(block.id)
       }

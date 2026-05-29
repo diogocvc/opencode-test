@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Block from './Block'
 import { useStore } from '../store'
@@ -51,6 +51,22 @@ describe('Block', () => {
     const textarea = screen.getByRole('textbox')
     fireEvent.keyDown(textarea, { key: 'Enter' })
     expect(useStore.getState().blocks).toHaveLength(2)
+  })
+
+  it('does not call addBlock on Shift+Enter', () => {
+    render(<Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={false} total={1} />)
+    const textarea = screen.getByRole('textbox')
+    fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: true })
+    expect(useStore.getState().blocks).toHaveLength(1)
+  })
+
+  it('focuses textarea when focusedBlockId matches', () => {
+    render(<Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={false} total={1} />)
+    act(() => {
+      useStore.getState().setFocusedBlockId('block-1')
+    })
+    const textarea = screen.getByRole('textbox')
+    expect(document.activeElement).toBe(textarea)
   })
 
   it('does not call addBlock on Cmd+Enter', () => {
