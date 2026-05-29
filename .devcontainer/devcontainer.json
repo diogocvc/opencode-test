@@ -1,0 +1,16 @@
+{
+    "name": "OpenCode Workspace",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  
+    "postCreateCommand": "npm install -g opencode-ai",
+  
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "ms-vscode.vscode-typescript-next"
+        ]
+      }
+    },
+  
+    "remoteUser": "node"
+  }
