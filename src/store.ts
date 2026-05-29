@@ -67,7 +67,7 @@ export const useStore = create<Store>()(
   persist(
     (set) => ({
       blocks: [{ id: genId(), text: '' }],
-      settings: { provider: 'openai', apiKey: '', model: PROVIDER_MODELS.openai },
+      settings: { provider: 'groq', apiKey: '', model: PROVIDER_MODELS.groq },
       selectedBlockIds: [],
       loading: false,
       streamingBlockId: null,

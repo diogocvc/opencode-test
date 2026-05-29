@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useStore, type AIProvider } from '../store'
 
-const PROVIDERS: { value: AIProvider; label: string; browser: boolean }[] = [
-  { value: 'openai', label: 'OpenAI', browser: false },
-  { value: 'anthropic', label: 'Anthropic', browser: false },
-  { value: 'groq', label: 'Groq', browser: true },
-  { value: 'google', label: 'Google Gemini', browser: true },
+const PROVIDERS: { value: AIProvider; label: string }[] = [
+  { value: 'groq', label: 'Groq' },
+  { value: 'google', label: 'Google Gemini' },
 ]
 
 interface Props {
@@ -41,15 +39,10 @@ export default function SettingsModal({ open, onClose }: Props) {
           >
             {PROVIDERS.map((p) => (
               <option key={p.value} value={p.value}>
-                {p.label} {p.browser ? '✅' : ''}
+                {p.label}
               </option>
             ))}
           </select>
-          {!PROVIDERS.find((p) => p.value === localProvider)?.browser && (
-            <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-              ⚠ OpenAI e Anthropic não funcionam direto do navegador (CORS). Use Groq ou Google Gemini.
-            </p>
-          )}
         </label>
 
         <label className="mb-4 block">
