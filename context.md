@@ -142,6 +142,8 @@ src/
 
 ## Fase 7 — Qualidade da Ponte IA (adicionado em 31/05/2026)
 
+> ⚠️ **Nota importante:** Todos os testes e observações feitos antes deste commit (incluindo os erros de CORS com API Key inválida e os testes de qualidade da ponte) foram na versão anterior do código (`608bb63`). As correções só passam a valer a partir deste commit.
+
 ### Bugs corrigidos
 - **API Key com espaços**: `SettingsModal.tsx` — adicionado `.trim()` no `onChange` do input da API Key para evitar espaços extras que invalidam a chave.
 - **Mensagem de erro de rede**: `ai.ts` — mensagem do `fetchWithTimeout` agora sugere verificar se a API Key tem espaços extras.
