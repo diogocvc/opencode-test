@@ -6,7 +6,7 @@ export interface Block {
   text: string
 }
 
-export type AIProvider = 'openai' | 'anthropic' | 'groq' | 'google'
+export type AIProvider = 'openai' | 'anthropic' | 'groq' | 'google' | 'openrouter'
 
 export interface AISettings {
   provider: AIProvider
@@ -25,6 +25,7 @@ const PROVIDER_MODELS: Record<AIProvider, string> = {
   anthropic: 'claude-3-haiku-20240307',
   groq: 'llama-3.3-70b-versatile',
   google: 'gemini-1.5-flash',
+  openrouter: 'openai/gpt-4o-mini',
 }
 
 const MAX_UNDO = 50

@@ -4,6 +4,7 @@ import { useStore, type AIProvider } from '../store'
 const PROVIDERS: { value: AIProvider; label: string }[] = [
   { value: 'groq', label: 'Groq' },
   { value: 'google', label: 'Google Gemini' },
+  { value: 'openrouter', label: 'OpenRouter' },
 ]
 
 interface Props {

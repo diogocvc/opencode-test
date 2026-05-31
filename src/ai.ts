@@ -17,6 +17,7 @@ const API_URLS: Record<AIProvider, string> = {
   anthropic: 'https://api.anthropic.com/v1/messages',
   groq: 'https://api.groq.com/openai/v1/chat/completions',
   google: 'https://generativelanguage.googleapis.com/v1beta/models',
+  openrouter: 'https://openrouter.ai/api/v1/chat/completions',
 }
 
 const TIMEOUT_MS = 30_000
@@ -121,11 +122,26 @@ async function callGoogle(apiKey: string, model: string, system: string, user: s
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
 }
 
+async function callOpenRouter(apiKey: string, model: string, system: string, user: string) {
+  const res = await fetchWithTimeout(API_URLS.openrouter, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
+  })
+  await handleResponseError(res)
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content ?? ''
+}
+
 const PROVIDER_CALLERS: Record<AIProvider, (key: string, model: string, system: string, user: string) => Promise<string>> = {
   openai: callOpenAI,
   anthropic: callAnthropic,
   groq: callGroq,
   google: callGoogle,
+  openrouter: callOpenRouter,
 }
 
 export async function callAI(provider: AIProvider, apiKey: string, model: string, system: string, user: string) {
@@ -238,11 +254,43 @@ async function callGoogleStream(
   return fullText
 }
 
+async function callOpenRouterStream(
+  apiKey: string, model: string, system: string, user: string, onChunk: (text: string) => void,
+): Promise<string> {
+  const res = await fetchWithTimeout(API_URLS.openrouter, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
+      stream: true,
+    }),
+  })
+  await handleResponseError(res)
+
+  let fullText = ''
+  await readSSEStream(res, (data) => {
+    try {
+      const parsed = JSON.parse(data)
+      const content = parsed.choices?.[0]?.delta?.content ?? parsed.choices?.[0]?.text ?? ''
+      if (content) {
+        fullText += content
+        onChunk(content)
+      }
+    } catch { /* ignore */ }
+  })
+  return fullText
+}
+
 const PROVIDER_STREAMERS: Record<AIProvider, (key: string, model: string, system: string, user: string, onChunk: (text: string) => void) => Promise<string>> = {
   openai: callOpenAIStream,
   anthropic: callAnthropicStream,
   groq: callGroqStream,
   google: callGoogleStream,
+  openrouter: callOpenRouterStream,
 }
 
 export async function callAIStream(

@@ -173,9 +173,12 @@ O prompt de `bridgePrompt` em `ai.ts` passou por várias iterações para melhor
 ### Erro conhecido: CORS com API Key inválida
 Quando a API Key é inválida, a Groq retorna HTTP 401 **sem headers CORS**. O navegador bloqueia a resposta como erro de CORS, e o código cai no catch de rede (`fetchWithTimeout`) com mensagem genérica. A solução atual foi melhorar a mensagem para sugerir verificar a key. Idealmente, deveria-se detectar esse caso e mostrar um erro de autenticação mais preciso.
 
+### Provedor OpenRouter adicionado
+OpenRouter (`https://openrouter.ai`) foi adicionado como provedor compatível com CORS. Ele funciona como agregador de modelos (DeepSeek, OpenAI, Anthropic, etc.) com **uma única chave**. Útil caso a VPN bloqueie provedores específicos — o OpenRouter geralmente não é bloqueado.
+
 ## Pendentes / Próximos Passos
 
-- Adicionar mais provedores compatíveis com CORS (DeepSeek, Perplexity, Together, etc.)
+- Adicionar mais provedores compatíveis com CORS (DeepSeek direto, Perplexity, Together, etc.)
 - Modo claro/escuro: seguir preferência do sistema como fallback inicial (`prefers-color-scheme`)
 - Melhorias no undo: feedback visual de quantos passos atrás, botão de redo (Ctrl+Shift+Z)
 - Streaming: tratamento de erro parcial se stream falha no meio
