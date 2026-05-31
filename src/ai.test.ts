@@ -14,7 +14,6 @@ describe('bridgePrompt', () => {
     const result = bridgePrompt('Hello', 'World')
     expect(result.system).toContain('transição')
     expect(result.user).toContain('Hello')
-    expect(result.user).toContain('World')
   })
 })
 

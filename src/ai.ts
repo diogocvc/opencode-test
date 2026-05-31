@@ -31,7 +31,7 @@ async function fetchWithTimeout(url: string, options: RequestInit): Promise<Resp
     if (err instanceof DOMException && err.name === 'AbortError') {
       throw new AIError('A requisição excedeu o tempo limite. Tente novamente.', 'timeout')
     }
-    throw new AIError('Erro de conexão. Verifique sua internet e se o provedor suporta CORS.', 'network')
+    throw new AIError('Erro de conexão. Verifique se a API Key está correta (sem espaços extras) e se o provedor suporta CORS.', 'network')
   } finally {
     clearTimeout(timeoutId)
   }
@@ -259,8 +259,17 @@ export async function callAIStream(
 
 export function bridgePrompt(textA: string, textB: string) {
   return {
-    system: 'Você é um assistente de escrita. Gere um parágrafo de transição fluida entre os dois textos fornecidos. Mantenha o tom e o estilo. Responda apenas com o texto de transição, sem introduções ou formatação.',
-    user: `Texto A:\n${textA}\n\nTexto B:\n${textB}`,
+    system: 'Você é um escritor criando uma transição sutil entre duas partes de um texto (A e B). Escreva UM PARÁGRAFO CURTO (1 a 2 frases).\n\n'
+      + 'A transição deve:\n'
+      + '- Partir naturalmente do final de A.\n'
+      + '- Criar uma expectativa sobre o que vem a seguir, sem revelar o conteúdo de B.\n'
+      + '- Soar como uma ponte invisível: o leitor sente a continuidade, mas não percebe a emenda.\n\n'
+      + 'A transição NÃO deve:\n'
+      + '- Mencionar nenhum conceito, pessoa, evento, lugar ou palavra-chave específica do Texto B.\n'
+      + '- Repetir ou resumir informações de A ou B.\n'
+      + '- Usar palavras como "entretanto", "todavia", "porém" para forçar conexão.\n\n'
+      + 'Responda APENAS com o parágrafo de transição.',
+    user: `Texto A (o que o leitor acabou de ler):\n${textA}\n\nTexto B (o que vem depois — leia para saber a direção, mas não revele nada disso):\n${textB}\n\n---\n\nEscreva a transição.`,
   }
 }
 

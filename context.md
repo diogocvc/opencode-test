@@ -140,6 +140,37 @@ src/
 - **Fundo responsivo**: layout com wrapper full-width + conteúdo `max-w-3xl mx-auto`
 - **CORS**: OpenAI e Anthropic removidos dos provedores (não funcionam sem backend). Padrão alterado para Groq.
 
+## Fase 7 — Qualidade da Ponte IA (adicionado em 31/05/2026)
+
+### Bugs corrigidos
+- **API Key com espaços**: `SettingsModal.tsx` — adicionado `.trim()` no `onChange` do input da API Key para evitar espaços extras que invalidam a chave.
+- **Mensagem de erro de rede**: `ai.ts` — mensagem do `fetchWithTimeout` agora sugere verificar se a API Key tem espaços extras.
+- **Ordem dos blocos no "Ligar"**: `App.tsx:handleBridge` — `selectedBlockIds` era usado na ordem de clique do usuário. Agora ordena os blocos pela posição no documento antes de definir A (primeiro) e B (segundo). O bloco de transição é inserido depois de A (`idxA + 1`) em vez de antes de B.
+
+### Prompt do bridgePrompt (7 iterações)
+O prompt de `bridgePrompt` em `ai.ts` passou por várias iterações para melhorar a qualidade da transição:
+
+|#|Abordagem|Resultado|
+|---|---|---|
+|1|"Gere transição fluida entre os dois textos"|IA misturava/resumia ambos os blocos|
+|2|Envia última frase de A + primeira de B explicitamente|IA repetia a primeira frase de B na ponte → redundância|
+|3|Instrução "NÃO use palavras/ideias do Texto B"|IA ainda referenciava B (ex: "hype")|
+|4|Remove Texto B do prompt; só direção genérica|Usuário questionou relevância de B|
+|5|`summarize(textB)` — resumo curto no lugar do texto bruto|IA ainda extraía conceitos específicos do resumo|
+|6|Texto completo de ambos + regras mais fortes|Ainda referenciou "hype" e "inteligências artificiais"|
+|7|**Atual:** framing de "escritor criando ponte invisível" — foco em criar expectativa sem revelar B|A testar|
+
+**Decisão final (v7):** Manter texto completo de ambos os blocos no prompt (contexto máximo), mas reformular com:
+- Metáfora de "ponte invisível" — leitor sente continuidade sem perceber a emenda
+- Ênfase em criar expectativa/antecipação, não em revelar B
+- Proibição de conectivos forçados ("entretanto", "todavia", "porém")
+- Resposta limitada a 1-2 frases
+
+**Problema ainda aberto:** IA tende a referenciar conceitos específicos do Texto B (ex: "hype", "IA") mesmo quando instruída a não fazer. A abordagem v7 tenta contornar isso mudando o framing de "regras" para "papel de escritor".
+
+### Erro conhecido: CORS com API Key inválida
+Quando a API Key é inválida, a Groq retorna HTTP 401 **sem headers CORS**. O navegador bloqueia a resposta como erro de CORS, e o código cai no catch de rede (`fetchWithTimeout`) com mensagem genérica. A solução atual foi melhorar a mensagem para sugerir verificar a key. Idealmente, deveria-se detectar esse caso e mostrar um erro de autenticação mais preciso.
+
 ## Pendentes / Próximos Passos
 
 - Adicionar mais provedores compatíveis com CORS (DeepSeek, Perplexity, Together, etc.)
@@ -149,6 +180,8 @@ src/
 - Performance: debounce no pushUndo do onBlur para evitar snapshots duplicados
 - Acessibilidade: labels, aria, foco gerenciado
 - Testes de integração mais robustos para fluxos de IA
+- **BridgePrompt:** prompt da ponte entre blocos ainda precisa de ajustes — IA tende a referenciar conteúdo do Bloco B. Testar abordagem v7 (framing de "escritor criando ponte invisível").
+- **CORS com erro 401**: Detectar quando a resposta da API é bloqueada por CORS devido a erro de autenticação (Groq não envia headers CORS em respostas 4xx) e mostrar toast de auth em vez de network.
 
 ## Comandos
 

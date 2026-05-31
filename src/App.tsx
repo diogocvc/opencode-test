@@ -90,7 +90,10 @@ export default function App() {
       setSettingsOpen(true)
       return
     }
-    const [idA, idB] = selectedBlockIds
+    const sorted = [...selectedBlockIds].sort(
+      (a, b) => blocks.findIndex((blk) => blk.id === a) - blocks.findIndex((blk) => blk.id === b),
+    )
+    const [idA, idB] = sorted
     const blockA = blocks.find((b) => b.id === idA)
     const blockB = blocks.find((b) => b.id === idB)
     if (!blockA || !blockB) return
@@ -98,9 +101,9 @@ export default function App() {
     useStore.getState().pushUndo()
     const newBlock: Block = { id: `block-${Date.now()}`, text: '' }
     useStore.setState((s) => {
-      const idx = s.blocks.findIndex((b) => b.id === idB)
+      const idxA = s.blocks.findIndex((b) => b.id === idA)
       const newBlocks = [...s.blocks]
-      newBlocks.splice(idx, 0, newBlock)
+      newBlocks.splice(idxA + 1, 0, newBlock)
       return { blocks: newBlocks, selectedBlockIds: [] }
     })
 
