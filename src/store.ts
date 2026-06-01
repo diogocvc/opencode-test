@@ -119,11 +119,34 @@ export const useStore = create<Store>()(
 
       toggleSelectBlock: (id) =>
         set((s) => {
-          const exists = s.selectedBlockIds.includes(id)
-          const selectedBlockIds = exists
-            ? s.selectedBlockIds.filter((bid) => bid !== id)
-            : [...s.selectedBlockIds, id]
-          return { selectedBlockIds }
+          const { blocks, selectedBlockIds } = s
+          const idx = blocks.findIndex((b) => b.id === id)
+          if (idx === -1) return {}
+
+          if (selectedBlockIds.length === 0) {
+            return { selectedBlockIds: [id] }
+          }
+
+          if (selectedBlockIds.length === 1) {
+            const firstId = selectedBlockIds[0]
+            if (id === firstId) {
+              return { selectedBlockIds: [] }
+            }
+            const firstIdx = blocks.findIndex((b) => b.id === firstId)
+            if (Math.abs(idx - firstIdx) === 1) {
+              return { selectedBlockIds: [firstId, id] }
+            }
+            return { selectedBlockIds: [id] }
+          }
+
+          if (selectedBlockIds.length === 2) {
+            if (selectedBlockIds.includes(id)) {
+              return { selectedBlockIds: selectedBlockIds.filter((bid) => bid !== id) }
+            }
+            return { selectedBlockIds: [id] }
+          }
+
+          return {}
         }),
 
       clearSelection: () => set({ selectedBlockIds: [] }),

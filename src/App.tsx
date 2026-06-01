@@ -198,7 +198,9 @@ export default function App() {
     addToast('Arquivo .md exportado com sucesso!', 'success')
   }, [exportMarkdown, addToast])
 
-  const hasSelection = selectedBlockIds.length > 0
+  const firstSelectedId = selectedBlockIds.length === 1 ? selectedBlockIds[0] : null
+  const blockIndices = new Map(blocks.map((b, i) => [b.id, i]))
+  const firstIdx = firstSelectedId ? blockIndices.get(firstSelectedId)! : -1
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -247,33 +249,6 @@ export default function App() {
         </div>
       )}
 
-      {hasSelection && (
-        <div className="flex items-center gap-2 py-3">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {selectedBlockIds.length} bloco(s) selecionado(s)
-          </span>
-          <button
-            onClick={() => {
-              if (selectedBlockIds.length === 2) {
-                handleBridge()
-              } else {
-                addToast('Selecione exatamente 2 blocos para ligar.', 'info')
-              }
-            }}
-            disabled={loading || selectedBlockIds.length !== 2}
-            className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            Ligar blocos
-          </button>
-          <button
-            onClick={clearSelection}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            Limpar seleção
-          </button>
-        </div>
-      )}
-
       <main className="flex-1 space-y-3 py-4">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
@@ -284,6 +259,7 @@ export default function App() {
                   index={index}
                   total={blocks.length}
                   isSelected={selectedBlockIds.includes(block.id)}
+                  eligibleForBridge={firstSelectedId !== null && block.id !== firstSelectedId && Math.abs(blockIndices.get(block.id)! - firstIdx) === 1}
                 />
                 {block.id === rewriteId && (
                   <div className="ml-12 mt-1 flex gap-2">
@@ -324,6 +300,26 @@ export default function App() {
                     Reescrever
                   </button>
                 </div>
+                {index < blocks.length - 1 &&
+                  selectedBlockIds.length === 2 &&
+                  selectedBlockIds.includes(block.id) &&
+                  selectedBlockIds.includes(blocks[index + 1].id) && (
+                  <div className="ml-12 mt-3 flex items-center gap-2">
+                    <button
+                      onClick={handleBridge}
+                      disabled={loading}
+                      className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      Ligar blocos
+                    </button>
+                    <button
+                      onClick={clearSelection}
+                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </SortableContext>

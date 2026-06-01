@@ -8,11 +8,13 @@ interface Props {
   index: number
   isSelected: boolean
   total: number
+  eligibleForBridge?: boolean
 }
 
-export default function Block({ block, index, isSelected, total }: Props) {
-  const { updateBlock, removeBlock, moveBlock, toggleSelectBlock, addBlock, streamingBlockId, focusedBlockId, setFocusedBlockId } = useStore()
+export default function Block({ block, index, isSelected, total, eligibleForBridge = false }: Props) {
+  const { updateBlock, removeBlock, moveBlock, toggleSelectBlock, addBlock, streamingBlockId, focusedBlockId, setFocusedBlockId, selectedBlockIds } = useStore()
   const isStreaming = streamingBlockId === block.id
+  const bridgeMode = selectedBlockIds.length === 1 && !isSelected
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -115,10 +117,15 @@ export default function Block({ block, index, isSelected, total }: Props) {
       <div className="flex flex-col gap-1 pt-1">
         <button
           onClick={() => toggleSelectBlock(block.id)}
+          disabled={bridgeMode && !eligibleForBridge}
           className={`rounded p-1 ${
             isSelected
               ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+              : eligibleForBridge
+                ? 'text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 animate-pulse'
+                : bridgeMode
+                  ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
+                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
           }`}
           title="Selecionar para ligar"
         >

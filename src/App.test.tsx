@@ -61,10 +61,17 @@ describe('App', () => {
     expect(screen.getByText('IA processando...')).toBeInTheDocument()
   })
 
-  it('shows selection toolbar when blocks selected', () => {
-    useStore.setState({ selectedBlockIds: ['block-1'] })
+  it('shows bridge button between two adjacent selected blocks', () => {
+    useStore.setState({
+      blocks: [
+        { id: 'b1', text: 'First' },
+        { id: 'b2', text: 'Second' },
+      ],
+      selectedBlockIds: ['b1', 'b2'],
+    })
     render(<App />)
-    expect(screen.getByText('1 bloco(s) selecionado(s)')).toBeInTheDocument()
+    expect(screen.getByText('Ligar blocos')).toBeInTheDocument()
+    expect(screen.getByText('Cancelar')).toBeInTheDocument()
   })
 
   it('shows new block button', () => {

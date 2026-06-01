@@ -155,4 +155,22 @@ describe('Block', () => {
     fireEvent.blur(textarea)
     expect(useStore.getState().undoStack).toHaveLength(1)
   })
+
+  it('shows eligibleForBridge style on link button', () => {
+    useStore.setState({ selectedBlockIds: ['block-0'] })
+    const { container } = render(
+      <Block block={{ id: 'block-1', text: 'hello' }} index={1} isSelected={false} total={2} eligibleForBridge={true} />,
+    )
+    const btn = container.querySelector('[title="Selecionar para ligar"]')
+    expect(btn).toHaveClass('animate-pulse')
+  })
+
+  it('disables link button when bridgeMode active and not eligible', () => {
+    useStore.setState({ selectedBlockIds: ['block-2'] })
+    render(
+      <Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={false} total={3} eligibleForBridge={false} />,
+    )
+    const btn = screen.getByTitle('Selecionar para ligar')
+    expect(btn).toBeDisabled()
+  })
 })

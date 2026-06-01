@@ -170,4 +170,60 @@ describe('store', () => {
       expect(useStore.getState().undoStack).toHaveLength(2)
     })
   })
+
+  describe('bridge adjacency selection', () => {
+    beforeEach(() => {
+      useStore.setState({
+        blocks: [
+          { id: 'b0', text: 'zero' },
+          { id: 'b1', text: 'one' },
+          { id: 'b2', text: 'two' },
+        ],
+        selectedBlockIds: [],
+      })
+    })
+
+    it('selects first block when none selected', () => {
+      useStore.getState().toggleSelectBlock('b1')
+      expect(useStore.getState().selectedBlockIds).toEqual(['b1'])
+    })
+
+    it('selects adjacent block as second selection', () => {
+      useStore.getState().toggleSelectBlock('b1')
+      useStore.getState().toggleSelectBlock('b2')
+      expect(useStore.getState().selectedBlockIds).toEqual(['b1', 'b2'])
+    })
+
+    it('selects adjacent block above as second selection', () => {
+      useStore.getState().toggleSelectBlock('b1')
+      useStore.getState().toggleSelectBlock('b0')
+      expect(useStore.getState().selectedBlockIds).toEqual(['b1', 'b0'])
+    })
+
+    it('replaces selection when clicking non-adjacent block', () => {
+      useStore.getState().toggleSelectBlock('b0')
+      useStore.getState().toggleSelectBlock('b2')
+      expect(useStore.getState().selectedBlockIds).toEqual(['b2'])
+    })
+
+    it('deselects when clicking same block', () => {
+      useStore.getState().toggleSelectBlock('b1')
+      useStore.getState().toggleSelectBlock('b1')
+      expect(useStore.getState().selectedBlockIds).toEqual([])
+    })
+
+    it('removes one block when clicking selected in pair of 2', () => {
+      useStore.getState().toggleSelectBlock('b0')
+      useStore.getState().toggleSelectBlock('b1')
+      useStore.getState().toggleSelectBlock('b0')
+      expect(useStore.getState().selectedBlockIds).toEqual(['b1'])
+    })
+
+    it('replaces both selections when clicking unselected block in pair of 2', () => {
+      useStore.getState().toggleSelectBlock('b0')
+      useStore.getState().toggleSelectBlock('b1')
+      useStore.getState().toggleSelectBlock('b2')
+      expect(useStore.getState().selectedBlockIds).toEqual(['b2'])
+    })
+  })
 })
