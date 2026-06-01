@@ -66,16 +66,16 @@ src/
 ├── test/
 │   └── setup.ts            # Configuração do Vitest (import @testing-library/jest-dom)
 ├── components/
-│   ├── Block.tsx           # Bloco individual: textarea, drag handle, ↑↓, seleção, ações, streaming indicator
-│   ├── Block.test.tsx      # 18 testes
+│   ├── Block.tsx           # Bloco individual: textarea, drag handle, ↑↓, seleção, bridge eligibility, streaming indicator
+│   ├── Block.test.tsx      # 20 testes
 │   ├── SettingsModal.tsx   # Modal de configuração do provedor e API Key
 │   ├── Toast.tsx           # Componente de notificação toast
 │   └── Toast.test.tsx      # 4 testes
-├── App.tsx                 # Layout principal: header (com dark mode toggle), toolbar, lista de blocos, footer, toast
+├── App.tsx                 # Layout principal: header (dark mode toggle), lista de blocos, bridge button entre blocos, footer, toast
 ├── App.test.tsx            # 13 testes
 ├── main.tsx                # Entry point
 ├── index.css               # @import "tailwindcss" + @variant dark
-├── store.test.ts           # 24 testes (blocos, seleção, settings, dark mode, toasts, undo)
+├── store.test.ts           # 31 testes (blocos, seleção, settings, dark mode, toasts, undo, bridge adjacency)
 ├── ai.test.ts              # 21 testes (prompts, callAI, callAIStream 4 provedores, erros)
 └── assets/                 # Ícones SVG e hero.png
 ```
@@ -160,7 +160,7 @@ O prompt de `bridgePrompt` em `ai.ts` passou por várias iterações para melhor
 |4|Remove Texto B do prompt; só direção genérica|Usuário questionou relevância de B|
 |5|`summarize(textB)` — resumo curto no lugar do texto bruto|IA ainda extraía conceitos específicos do resumo|
 |6|Texto completo de ambos + regras mais fortes|Ainda referenciou "hype" e "inteligências artificiais"|
-|7|**Atual:** framing de "escritor criando ponte invisível" — foco em criar expectativa sem revelar B|A testar|
+|7|**Atual:** framing de "escritor criando ponte invisível" — foco em criar expectativa sem revelar B|Menos referências a B, mas ainda ocorre em conceitos populares (ex: "IA")|
 
 **Decisão final (v7):** Manter texto completo de ambos os blocos no prompt (contexto máximo), mas reformular com:
 - Metáfora de "ponte invisível" — leitor sente continuidade sem perceber a emenda
@@ -168,13 +168,29 @@ O prompt de `bridgePrompt` em `ai.ts` passou por várias iterações para melhor
 - Proibição de conectivos forçados ("entretanto", "todavia", "porém")
 - Resposta limitada a 1-2 frases
 
-**Problema ainda aberto:** IA tende a referenciar conceitos específicos do Texto B (ex: "hype", "IA") mesmo quando instruída a não fazer. A abordagem v7 tenta contornar isso mudando o framing de "regras" para "papel de escritor".
+**Problema ainda aberto:** IA tende a referenciar conceitos específicos do Texto B (ex: "hype", "IA") mesmo quando instruída a não fazer. A abordagem v7 tenta contornar isso mudando o framing de "regras" para "papel de escritor". Os resultados melhoraram (menos referências diretas), mas conceitos populares como "IA" ainda vazam.
 
 ### Erro conhecido: CORS com API Key inválida
 Quando a API Key é inválida, a Groq retorna HTTP 401 **sem headers CORS**. O navegador bloqueia a resposta como erro de CORS, e o código cai no catch de rede (`fetchWithTimeout`) com mensagem genérica. A solução atual foi melhorar a mensagem para sugerir verificar a key. Idealmente, deveria-se detectar esse caso e mostrar um erro de autenticação mais preciso.
 
 ### Provedor OpenRouter adicionado
 OpenRouter (`https://openrouter.ai`) foi adicionado como provedor compatível com CORS. Ele funciona como agregador de modelos (DeepSeek, OpenAI, Anthropic, etc.) com **uma única chave**. Útil caso a VPN bloqueie provedores específicos — o OpenRouter geralmente não é bloqueado.
+
+## Fase 8 — Usabilidade da Ponte (adicionado em 01/06/2026)
+
+### Bridge por adjacência
+- **Apenas blocos adjacentes** (sequenciais no documento) podem ser ligados. `toggleSelectBlock` no store rejeita seleção de blocos não-vizinhos.
+- Usuário clica no ícone de link do bloco A → vizinhos (A−1, A+1) ficam elegíveis.
+- Botão "Ligar blocos" + "Cancelar" aparecem **entre** os dois blocos selecionados (no local onde o bloco de transição será inserido), eliminando a necessidade de rolar até o topo.
+- Toolbar de seleção no topo foi removida.
+
+### Feedback visual
+- Bloco elegível para ponte: botão de link **pulsa** (`animate-pulse`) em azul.
+- Bloco não elegível (com 1 selecionado): botão de link **desabilitado** (`cursor-not-allowed`, opacidade baixa).
+- Bloco selecionado: mantém estilo azul existente.
+
+### Testes
+- 84 testes totais (store: 31, Block: 20, App: 13, Toast: 4, ai: 21)
 
 ## Pendentes / Próximos Passos
 
