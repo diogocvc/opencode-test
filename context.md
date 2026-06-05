@@ -192,6 +192,51 @@ OpenRouter (`https://openrouter.ai`) foi adicionado como provedor compatível co
 ### Testes
 - 84 testes totais (store: 31, Block: 20, App: 13, Toast: 4, ai: 21)
 
+## Fase 9 — Estilo Visual Expo UI (adicionado em 05/06/2026)
+
+> Design system extraído de `expo-ui.md` — análise do marketing site da Expo (React Native developer platform) com canvas branco, ink near-black, CTA preto, tipografia Inter + JetBrains Mono.
+
+### O que mudou
+
+| Arquivo | Mudanças |
+|---|---|
+| `index.html` | Google Fonts: Inter (400/500/600) + JetBrains Mono |
+| `index.css` | `font-sans` → Inter, `font-mono` → JetBrains Mono, `@theme` no Tailwind v4, antialiasing |
+| `App.tsx` | Header 64px com `border-gray-100` (hairline); botões `h-10` secondary (`rounded-lg border border-gray-300 bg-white`); CTA primário preto (`bg-black`); footer `border-gray-100`; botão +Novo bloco `border-dashed border-gray-300`; inputs `h-11 rounded-lg` (text-input); loading spinner azul |
+| `Block.tsx` | Cards `rounded-xl border-gray-300 p-4` (feature-card 12px); textarea `text-base font-normal leading-relaxed` (body-md); selecionado `border-blue-500 ring-1`; streaming `ring-2 ring-blue-200`; botões ação viraram text link (`text-sm font-medium text-gray-400`) |
+| `SettingsModal.tsx` | Overlay `bg-black/50`; inputs `h-11` com `focus:border-gray-900 focus:ring-1`; Save `bg-black`, Cancelar secondary; helper `text-gray-400` |
+| `Toast.tsx` | Cores semânticas Expo: `text-red-700`/`text-green-700`/`text-blue-700`; close com `opacity` |
+| `Block.test.tsx` | Classe `border-blue-400` → `border-blue-500` (selected) |
+
+### Tokens aplicados (Expo → Tailwind)
+
+**Cores:**
+- `primary` (#000000) → `bg-black` / `text-black`
+- `ink` (#171717) → `text-gray-900`
+- `body` (#60646c) → `text-gray-500`
+- `canvas` (#ffffff) → `bg-white`
+- `surface-card` (#ffffff) → `bg-white`
+- `surface-strong` (#f0f0f3) → `bg-gray-100`
+- `surface-dark` (#171717) → `bg-gray-900`
+- `hairline` (#f0f0f3) → `border-gray-100`
+- `hairline-strong` (#dcdee0) → `border-gray-300`
+- `text-link` (#0d74ce) → `text-blue-600`
+- `semantic-success` (#16a34a) → `text-green-600`
+- `semantic-error` (#eb8e90) → `text-red-300`
+
+**Tipografia:**
+- Display/títulos: `font-semibold` (600)
+- Body: `font-normal` (400) `leading-relaxed` (1.5)
+- Botões/nav: `text-sm font-medium` (14px/500)
+- Código: JetBrains Mono (`font-mono`)
+
+**Border radius:**
+- Botões/inputs: `rounded-lg` (8px — `rounded.md`)
+- Cards: `rounded-xl` (12px — `rounded.lg`)
+
+### Testes
+- 84 testes passando (store: 31, Block: 20, App: 13, Toast: 4, ai: 21)
+
 ## Pendentes / Próximos Passos
 
 - Adicionar mais provedores compatíveis com CORS (DeepSeek direto, Perplexity, Together, etc.)
@@ -201,6 +246,7 @@ OpenRouter (`https://openrouter.ai`) foi adicionado como provedor compatível co
 - Performance: debounce no pushUndo do onBlur para evitar snapshots duplicados
 - Acessibilidade: labels, aria, foco gerenciado
 - Testes de integração mais robustos para fluxos de IA
+- Aplicar gradiente sky-blue no hero (se houver página inicial no futuro)
 - **BridgePrompt:** prompt da ponte entre blocos ainda precisa de ajustes — IA tende a referenciar conteúdo do Bloco B. Testar abordagem v7 (framing de "escritor criando ponte invisível").
 - **CORS com erro 401**: Detectar quando a resposta da API é bloqueada por CORS devido a erro de autenticação (Groq não envia headers CORS em respostas 4xx) e mostrar toast de auth em vez de network.
 
