@@ -203,21 +203,21 @@ export default function App() {
   const firstIdx = firstSelectedId ? blockIndices.get(firstSelectedId)! : -1
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       <div className="mx-auto flex max-w-3xl flex-col px-4">
-        <header className="flex items-center justify-between border-b border-gray-200 py-4 dark:border-gray-700">
-          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+        <header className="flex h-16 items-center justify-between border-b border-gray-100 dark:border-gray-800">
+          <h1 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
           Editor de Blocos
         </h1>
         <div className="flex items-center gap-2">
           {!settings.apiKey && (
-            <span className="text-xs text-amber-600 dark:text-amber-400">
+            <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
               API Key não configurada
             </span>
           )}
           <button
             onClick={toggleDarkMode}
-            className="rounded-lg border border-gray-300 p-1.5 text-gray-600 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
             title={darkMode ? 'Modo claro' : 'Modo escuro'}
           >
             {darkMode ? (
@@ -232,7 +232,7 @@ export default function App() {
           </button>
           <button
             onClick={() => setSettingsOpen(true)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="inline-flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
           >
             Configurar IA
           </button>
@@ -240,7 +240,7 @@ export default function App() {
       </header>
 
       {loading && (
-        <div className="flex items-center justify-center gap-2 py-3 text-sm text-blue-600 dark:text-blue-400">
+        <div className="flex items-center justify-center gap-2 py-3 text-sm font-medium text-blue-600 dark:text-blue-400">
           <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -249,7 +249,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="flex-1 space-y-3 py-4">
+      <main className="flex-1 space-y-2 py-4">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
             {blocks.map((block, index) => (
@@ -262,40 +262,40 @@ export default function App() {
                   eligibleForBridge={firstSelectedId !== null && block.id !== firstSelectedId && Math.abs(blockIndices.get(block.id)! - firstIdx) === 1}
                 />
                 {block.id === rewriteId && (
-                  <div className="ml-12 mt-1 flex gap-2">
+                  <div className="ml-12 mt-2 flex gap-2">
                     <input
                       value={rewriteInstruction}
                       onChange={(e) => setRewriteInstruction(e.target.value)}
                       placeholder="Ex: torne mais formal, resuma em 2 frases..."
-                      className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                      className="h-11 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-gray-400 dark:focus:ring-gray-400"
                     />
                     <button
                       onClick={() => handleRewrite(block.id)}
                       disabled={loading}
-                      className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:opacity-50"
+                      className="inline-flex h-11 items-center rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-gray-900 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
                     >
                       Ok
                     </button>
                     <button
                       onClick={() => { setRewriteId(null); setRewriteInstruction('') }}
-                      className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 dark:border-gray-600 dark:text-gray-300"
+                      className="inline-flex h-11 items-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
                     >
                       Cancelar
                     </button>
                   </div>
                 )}
-                <div className="ml-12 mt-1 flex gap-1">
+                <div className="ml-12 mt-2 flex gap-3">
                   <button
                     onClick={() => handleCorrect(block.id)}
                     disabled={loading || !block.text.trim()}
-                    className="rounded px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100 disabled:opacity-30 dark:hover:bg-gray-700"
+                    className="text-sm font-medium text-gray-400 hover:text-gray-600 disabled:opacity-30 dark:hover:text-gray-300"
                   >
                     Corrigir
                   </button>
                   <button
                     onClick={() => setRewriteId(block.id)}
                     disabled={loading}
-                    className="rounded px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100 disabled:opacity-30 dark:hover:bg-gray-700"
+                    className="text-sm font-medium text-gray-400 hover:text-gray-600 disabled:opacity-30 dark:hover:text-gray-300"
                   >
                     Reescrever
                   </button>
@@ -308,13 +308,13 @@ export default function App() {
                     <button
                       onClick={handleBridge}
                       disabled={loading}
-                      className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="inline-flex h-10 items-center rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-gray-900 disabled:opacity-50"
                     >
                       Ligar blocos
                     </button>
                     <button
                       onClick={clearSelection}
-                      className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                      className="inline-flex h-10 items-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
                     >
                       Cancelar
                     </button>
@@ -326,23 +326,23 @@ export default function App() {
         </DndContext>
       </main>
 
-      <footer className="flex items-center justify-between border-t border-gray-200 py-4 dark:border-gray-700">
+      <footer className="flex items-center justify-between border-t border-gray-100 py-4 dark:border-gray-800">
         <button
           onClick={() => addBlock()}
-          className="rounded-lg border border-dashed border-gray-400 px-4 py-2 text-sm text-gray-500 hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-300"
+          className="inline-flex h-10 items-center rounded-lg border border-dashed border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:border-gray-900 hover:text-gray-900 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:border-gray-400"
         >
           + Novo bloco
         </button>
         <div className="flex gap-2">
           <button
             onClick={handleCopyExport}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="inline-flex h-10 items-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
           >
             Copiar
           </button>
           <button
             onClick={handleDownloadExport}
-            className="rounded-lg bg-gray-800 px-3 py-1.5 text-sm text-white hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300"
+            className="inline-flex h-10 items-center rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
           >
             Exportar .md
           </button>

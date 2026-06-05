@@ -116,7 +116,7 @@ describe('Block', () => {
     const { container } = render(
       <Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={true} total={1} />,
     )
-    expect(container.firstChild).toHaveClass('border-blue-400')
+    expect(container.firstChild).toHaveClass('border-blue-500')
   })
 
   it('calls moveBlock on up button click', async () => {

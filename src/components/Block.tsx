@@ -60,12 +60,12 @@ export default function Block({ block, index, isSelected, total, eligibleForBrid
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative flex gap-2 rounded-lg border p-3 transition-colors ${
+      className={`group relative flex gap-3 rounded-xl border p-4 transition-colors ${
         isSelected
-          ? 'border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-950'
+          ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500 dark:border-blue-400 dark:bg-blue-950 dark:ring-blue-500'
           : isStreaming
             ? 'border-blue-400 bg-white ring-2 ring-blue-200 dark:border-blue-400 dark:bg-gray-800 dark:ring-blue-800'
-            : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'
+            : 'border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800'
       }`}
     >
       <div className="flex flex-col items-center gap-1 pt-1">
@@ -110,7 +110,7 @@ export default function Block({ block, index, isSelected, total, eligibleForBrid
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder="Escreva seu texto aqui..."
-        className="min-h-[60px] flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 text-gray-800 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
+        className="min-h-[60px] flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 text-base font-normal leading-relaxed text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
         rows={1}
       />
 

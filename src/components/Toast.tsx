@@ -20,9 +20,9 @@ const ICONS = {
 }
 
 const BG_COLORS = {
-  error: 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950',
-  success: 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950',
-  info: 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950',
+  error: 'border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300',
+  success: 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300',
+  info: 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300',
 }
 
 function ToastItem({ id, message, type }: { id: string; message: string; type: 'error' | 'success' | 'info' }) {
@@ -38,8 +38,8 @@ function ToastItem({ id, message, type }: { id: string; message: string; type: '
       className={`flex items-start gap-2 rounded-lg border p-3 shadow-lg transition-all ${BG_COLORS[type]}`}
     >
       {ICONS[type]}
-      <p className="flex-1 text-sm text-gray-800 dark:text-gray-100">{message}</p>
-      <button onClick={() => removeToast(id)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+      <p className="flex-1 text-sm">{message}</p>
+      <button onClick={() => removeToast(id)} className="opacity-60 hover:opacity-100">
         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
