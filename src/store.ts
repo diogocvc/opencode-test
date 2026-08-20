@@ -47,7 +47,9 @@ export interface Store {
   toasts: Toast[]
   undoStack: Block[][]
   focusedBlockId: string | null
+  activeBlockId: string | null
   setFocusedBlockId: (id: string | null) => void
+  setActiveBlockId: (id: string | null) => void
   addBlock: (afterId?: string) => void
   removeBlock: (id: string) => void
   updateBlock: (id: string, text: string) => void
@@ -76,8 +78,11 @@ export const useStore = create<Store>()(
       toasts: [],
       undoStack: [],
       focusedBlockId: null,
+      activeBlockId: null,
 
       setFocusedBlockId: (id) => set({ focusedBlockId: id }),
+
+      setActiveBlockId: (id) => set({ activeBlockId: id }),
 
       addBlock: (afterId) =>
         set((s) => {

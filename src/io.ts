@@ -72,7 +72,9 @@ export async function openMarkdown(): Promise<string[] | null> {
         multiple: false,
         types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }],
       })
-      if (!handle || !handle.name || !isMarkdownFile(handle.name)) return null
+      if (!handle) return null
+      const name = handle.name
+      if (!name || !isMarkdownFile(name)) return null
       const file = await handle.getFile?.()
       if (!file) return null
       const text = await file.text()

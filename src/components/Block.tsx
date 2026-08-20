@@ -1,7 +1,9 @@
-import { useCallback, useRef, useEffect } from 'react'
+import { useCallback, useRef, useEffect, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useStore, type Block as BlockType } from '../store'
+import { formatBlock, detectBlockStyle, type FormatAction } from '../markdown'
+import Toolbar from './Toolbar'
 
 interface Props {
   block: BlockType
@@ -12,10 +14,13 @@ interface Props {
 }
 
 export default function Block({ block, index, isSelected, total, eligibleForBridge = false }: Props) {
-  const { updateBlock, removeBlock, moveBlock, toggleSelectBlock, addBlock, streamingBlockId, focusedBlockId, setFocusedBlockId, selectedBlockIds } = useStore()
+  const { updateBlock, removeBlock, moveBlock, toggleSelectBlock, addBlock, streamingBlockId, focusedBlockId, setFocusedBlockId, selectedBlockIds, activeBlockId, setActiveBlockId } = useStore()
   const isStreaming = streamingBlockId === block.id
+  const isActive = activeBlockId === block.id
   const bridgeMode = selectedBlockIds.length === 1 && !isSelected
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [below, setBelow] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: block.id,
@@ -56,9 +61,53 @@ export default function Block({ block, index, isSelected, total, eligibleForBrid
     }
   }, [block.text])
 
+  useEffect(() => {
+    if (!isActive) return
+    const measure = () => {
+      const el = rootRef.current
+      if (!el) return
+      setBelow(el.getBoundingClientRect().top < 80)
+    }
+    measure()
+    window.addEventListener('scroll', measure, true)
+    window.addEventListener('resize', measure)
+    return () => {
+      window.removeEventListener('scroll', measure, true)
+      window.removeEventListener('resize', measure)
+    }
+  }, [isActive])
+
+  const applyFormatting = useCallback(
+    (action: FormatAction, level?: number) => {
+      const ta = textareaRef.current
+      if (!ta) return
+      const { text, selStart, selEnd } = formatBlock(
+        block.text,
+        ta.selectionStart,
+        ta.selectionEnd,
+        action,
+        level,
+      )
+      updateBlock(block.id, text)
+      requestAnimationFrame(() => {
+        ta.focus()
+        ta.setSelectionRange(selStart, selEnd)
+      })
+    },
+    [block.id, block.text, updateBlock],
+  )
+
+  const setRefs = useCallback(
+    (node: HTMLDivElement | null) => {
+      rootRef.current = node
+      setNodeRef(node)
+    },
+    [setNodeRef],
+  )
+
   return (
     <div
-      ref={setNodeRef}
+      ref={setRefs}
       style={style}
       className={`group relative flex gap-3 rounded-xl border p-4 transition-colors ${
         isSelected
@@ -68,6 +117,15 @@ export default function Block({ block, index, isSelected, total, eligibleForBrid
             : 'border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800'
       }`}
     >
+      {isActive && (
+        <div className={`absolute left-12 z-20 ${below ? 'top-full mt-2' : 'bottom-full mb-1'}`}>
+          <Toolbar
+            style={detectBlockStyle(block.text)}
+            onApply={applyFormatting}
+          />
+        </div>
+      )}
+
       <div className="flex flex-col items-center gap-1 pt-1">
         <button
           {...listeners}
@@ -109,6 +167,7 @@ export default function Block({ block, index, isSelected, total, eligibleForBrid
         onChange={(e) => updateBlock(block.id, e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
+        onFocus={() => setActiveBlockId(block.id)}
         placeholder="Escreva seu texto aqui..."
         className="min-h-[60px] flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 text-base font-normal leading-relaxed text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
         rows={1}
