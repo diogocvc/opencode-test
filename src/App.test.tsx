@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import { useStore } from './store'
@@ -25,21 +25,39 @@ vi.mock('./ai', () => ({
   rewritePrompt: vi.fn(() => ({ system: '', user: '' })),
 }))
 
+const mockSaveMarkdown = vi.fn().mockResolvedValue(true)
+const mockOpenMarkdown = vi.fn().mockResolvedValue(['Bloco A', 'Bloco B'])
+const mockIsMarkdownFile = vi.fn((name: string) => name.toLowerCase().endsWith('.md'))
+const mockReadMarkdownFile = vi.fn().mockResolvedValue(['Bloco A', 'Bloco B'])
+
+vi.mock('./io', () => ({
+  saveMarkdown: (...args: unknown[]) => mockSaveMarkdown(...args),
+  openMarkdown: (...args: unknown[]) => mockOpenMarkdown(...args),
+  isMarkdownFile: (...args: unknown[]) => mockIsMarkdownFile(...args),
+  readMarkdownFile: (...args: unknown[]) => mockReadMarkdownFile(...args),
+}))
+
 beforeEach(() => {
   localStorage.clear()
+  mockSaveMarkdown.mockClear()
+  mockOpenMarkdown.mockClear()
+  mockIsMarkdownFile.mockClear()
+  mockReadMarkdownFile.mockClear()
+  delete (window as Window & { showOpenFilePicker?: unknown }).showOpenFilePicker
   useStore.setState({
     blocks: [{ id: 'block-1', text: '' }],
     settings: { provider: 'openai', apiKey: '', model: 'gpt-4o-mini' },
     selectedBlockIds: [],
     loading: false,
     undoStack: [],
+    toasts: [],
   })
 })
 
 describe('App', () => {
   it('renders the editor title', () => {
     render(<App />)
-    expect(screen.getByText('Editor de Blocos')).toBeInTheDocument()
+    expect(screen.getByText('TEXTRIS')).toBeInTheDocument()
   })
 
   it('shows API Key warning when not configured', () => {
@@ -83,6 +101,63 @@ describe('App', () => {
     render(<App />)
     expect(screen.getByText('Copiar')).toBeInTheDocument()
     expect(screen.getByText('Exportar .md')).toBeInTheDocument()
+  })
+
+  it('shows save and open buttons', () => {
+    render(<App />)
+    expect(screen.getByText('Salvar')).toBeInTheDocument()
+    expect(screen.getByText('Abrir .md')).toBeInTheDocument()
+  })
+
+  it('saves document on save button click', async () => {
+    render(<App />)
+    await userEvent.click(screen.getByText('Salvar'))
+    expect(mockSaveMarkdown).toHaveBeenCalled()
+    expect(screen.getByText('Documento salvo com sucesso!')).toBeInTheDocument()
+  })
+
+  it('opens document and replaces blocks on open button click', async () => {
+    window.showOpenFilePicker = vi.fn()
+    render(<App />)
+    await userEvent.click(screen.getByText('Abrir .md'))
+    expect(mockOpenMarkdown).toHaveBeenCalled()
+    const { blocks } = useStore.getState()
+    expect(blocks).toEqual([
+      { id: expect.any(String), text: 'Bloco A' },
+      { id: expect.any(String), text: 'Bloco B' },
+    ])
+  })
+
+  it('falls back to file input when showOpenFilePicker is unavailable', async () => {
+    render(<App />)
+    await userEvent.click(screen.getByText('Abrir .md'))
+    const input = document.querySelector('input[type="file"]')
+    expect(input).not.toBeNull()
+  })
+
+  it('rejects non-md file with error toast', async () => {
+    mockIsMarkdownFile.mockReturnValueOnce(false)
+    render(<App />)
+    await userEvent.click(screen.getByText('Abrir .md'))
+    const input = document.querySelector('input[type="file"]')!
+    const file = new File(['conteudo'], 'nota.txt', { type: 'text/plain' })
+    fireEvent.change(input, { target: { files: [file] } })
+    expect(screen.getByText('Apenas arquivos .md são aceitos.')).toBeInTheDocument()
+    expect(useStore.getState().blocks).toHaveLength(1)
+  })
+
+  it('loads file content from input when md', async () => {
+    render(<App />)
+    await userEvent.click(screen.getByText('Abrir .md'))
+    const input = document.querySelector('input[type="file"]')!
+    const file = new File(['A\n\n---\n\nB'], 'nota.md', { type: 'text/markdown' })
+    fireEvent.change(input, { target: { files: [file] } })
+    expect(mockReadMarkdownFile).toHaveBeenCalled()
+    await waitFor(() => {
+      const { blocks } = useStore.getState()
+      expect(blocks).toHaveLength(2)
+    })
+    expect(screen.getByText('Documento aberto com sucesso!')).toBeInTheDocument()
   })
 
   it('opens settings modal on config button click', async () => {

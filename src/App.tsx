@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -15,6 +15,7 @@ import {
 } from '@dnd-kit/sortable'
 import { useStore, type Block } from './store'
 import { callAIStream, bridgePrompt, correctPrompt, rewritePrompt } from './ai'
+import { saveMarkdown, openMarkdown, isMarkdownFile, readMarkdownFile } from './io'
 import BlockComponent from './components/Block'
 import SettingsModal from './components/SettingsModal'
 import Toast from './components/Toast'
@@ -198,6 +199,62 @@ export default function App() {
     addToast('Arquivo .md exportado com sucesso!', 'success')
   }, [exportMarkdown, addToast])
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const loadBlocks = useCallback(
+    (texts: string[]) => {
+      useStore.getState().pushUndo()
+      const newBlocks: Block[] = texts.map((text, i) => ({ id: `block-${Date.now()}-${i}`, text }))
+      useStore.setState({ blocks: newBlocks, selectedBlockIds: [] })
+    },
+    [],
+  )
+
+  const handleSave = useCallback(async () => {
+    try {
+      const ok = await saveMarkdown(useStore.getState().blocks, 'documento.md')
+      if (ok) addToast('Documento salvo com sucesso!', 'success')
+    } catch {
+      addToast('Erro ao salvar o documento.', 'error')
+    }
+  }, [addToast])
+
+  const handleOpenClick = useCallback(async () => {
+    if (window.showOpenFilePicker) {
+      try {
+        const texts = await openMarkdown()
+        if (texts) {
+          loadBlocks(texts)
+          addToast('Documento aberto com sucesso!', 'success')
+        }
+      } catch {
+        addToast('Não foi possível abrir o arquivo.', 'error')
+      }
+      return
+    }
+    fileInputRef.current?.click()
+  }, [loadBlocks, addToast])
+
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      e.target.value = ''
+      if (!file) return
+      if (!isMarkdownFile(file.name)) {
+        addToast('Apenas arquivos .md são aceitos.', 'error')
+        return
+      }
+      try {
+        const texts = await readMarkdownFile(file)
+        loadBlocks(texts)
+        addToast('Documento aberto com sucesso!', 'success')
+      } catch {
+        addToast('Não foi possível abrir o arquivo.', 'error')
+      }
+    },
+    [loadBlocks, addToast],
+  )
+
   const firstSelectedId = selectedBlockIds.length === 1 ? selectedBlockIds[0] : null
   const blockIndices = new Map(blocks.map((b, i) => [b.id, i]))
   const firstIdx = firstSelectedId ? blockIndices.get(firstSelectedId)! : -1
@@ -206,8 +263,8 @@ export default function App() {
     <div className="min-h-screen bg-white font-sans text-gray-900 dark:bg-gray-900 dark:text-gray-100">
       <div className="mx-auto flex max-w-3xl flex-col px-4">
         <header className="flex h-16 items-center justify-between border-b border-gray-100 dark:border-gray-800">
-          <h1 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
-          Editor de Blocos
+          <h1 className="font-display text-2xl tracking-tight text-gray-900 dark:text-white">
+          TEXTRIS
         </h1>
         <div className="flex items-center gap-2">
           {!settings.apiKey && (
@@ -341,12 +398,31 @@ export default function App() {
             Copiar
           </button>
           <button
+            onClick={handleOpenClick}
+            className="inline-flex h-10 items-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
+          >
+            Abrir .md
+          </button>
+          <button
+            onClick={handleSave}
+            className="inline-flex h-10 items-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
+          >
+            Salvar
+          </button>
+          <button
             onClick={handleDownloadExport}
             className="inline-flex h-10 items-center rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
           >
             Exportar .md
           </button>
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".md,text/markdown"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </footer>
       </div>
 

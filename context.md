@@ -63,6 +63,7 @@ Editor de texto baseado em blocos atômicos com assistência de IA. Cada bloco �
 src/
 ├── ai.ts                   # Chamadas IA (normal + streaming) + prompts + AIError
 ├── store.ts                # Estado global (Zustand): blocos, seleção, settings, undo, dark mode, toasts
+├── io.ts                   # Salvar/abrir .md: serialize/deserialize (separador ---) + File System Access API
 ├── test/
 │   └── setup.ts            # Configuração do Vitest (import @testing-library/jest-dom)
 ├── components/
@@ -72,11 +73,12 @@ src/
 │   ├── Toast.tsx           # Componente de notificação toast
 │   └── Toast.test.tsx      # 4 testes
 ├── App.tsx                 # Layout principal: header (dark mode toggle), lista de blocos, bridge button entre blocos, footer, toast
-├── App.test.tsx            # 13 testes
+├── App.test.tsx            # 19 testes (inclui salvar/abrir .md)
 ├── main.tsx                # Entry point
 ├── index.css               # @import "tailwindcss" + @variant dark
 ├── store.test.ts           # 31 testes (blocos, seleção, settings, dark mode, toasts, undo, bridge adjacency)
 ├── ai.test.ts              # 21 testes (prompts, callAI, callAIStream 4 provedores, erros)
+├── io.test.ts              # 12 testes (serialize/deserialize, saveMarkdown, openMarkdown, extensão)
 └── assets/                 # Ícones SVG e hero.png
 ```
 
@@ -236,6 +238,39 @@ OpenRouter (`https://openrouter.ai`) foi adicionado como provedor compatível co
 
 ### Testes
 - 84 testes passando (store: 31, Block: 20, App: 13, Toast: 4, ai: 21)
+
+## Fase 10 — Salvar/Abrir arquivo .md (adicionado em 19/08/2026)
+
+> Persistência fora do navegador: usuário pode salvar o documento em `.md` com a divisão por blocos e reabri-lo depois.
+
+### Salvar
+- Novo botão **"Salvar"** no rodapé (ao lado de "Exportar .md").
+- Usa `serializeBlocks` para juntar os blocos com o separador `\n\n---\n\n` — a divisão por blocos é preservada.
+- No Chrome/Edge, `window.showSaveFilePicker` permite escolher **local e nome do arquivo**.
+- Em Safari/Firefox (sem File System Access API), cai em fallback: download Blob direto.
+- `"Exportar .md"` permanece intacto: junta com `\n\n`, sem separadores, download direto.
+
+### Abrir
+- Novo botão **"Abrir .md"** no rodapé.
+- No Chrome/Edge, `window.showOpenFilePicker` permite navegar pastas e selecionar o arquivo.
+- Em Safari/Firefox, fallback para `<input type="file" accept=".md,text/markdown">` oculto.
+- `deserializeBlocks` divide o conteúdo pelos `---`, criando um bloco para cada seção.
+- Abrir substitui os blocos do store (com `pushUndo` antes, permitindo desfazer a abertura) e limpa a seleção.
+- **Só aceita `.md`**: o seletor filtra a extensão e, se um arquivo não-`.md` for forçado, mostra toast de erro ("Apenas arquivos .md são aceitos.").
+
+### Arquivo `src/io.ts` (novo)
+- `serializeBlocks(blocks)` → textos unidos com `\n\n---\n\n`.
+- `deserializeBlocks(md)` → divide pelos separadores `---` e descarta seções vazias.
+- `saveMarkdown(blocks, suggestedName)` → File System Access API com fallback para Blob; retorna boolean.
+- `openMarkdown()` → File System Access API; retorna blocos ou `null` (cancelado/não-`.md`).
+- `isMarkdownFile(name)` / `readMarkdownFile(file)` → validação de extensão e leitura do input de fallback.
+
+### Limitações conhecidas
+- Escolher local/nome do arquivo (File System Access API) só funciona em Chromium; demais navegadores usam fallback.
+- Texto que contenha `---` em linha isolada dentro de um bloco será quebrado em blocos ao reabrir (limitação do formato).
+
+### Testes
+- 105 testes passando (store: 31, Block: 20, App: 19, Toast: 4, ai: 21, io: 12).
 
 ## Pendentes / Próximos Passos
 
