@@ -16,6 +16,7 @@ import {
 import { useStore, type Block } from './store'
 import { callAIStream, bridgePrompt, correctPrompt, rewritePrompt } from './ai'
 import { saveMarkdown, openMarkdown, isMarkdownFile, readMarkdownFile } from './io'
+import { copyRichText, exportRichText } from './richText'
 import BlockComponent from './components/Block'
 import SettingsModal from './components/SettingsModal'
 import Toast from './components/Toast'
@@ -177,18 +178,18 @@ export default function App() {
     [blocks, settings, setLoading, setStreamingBlockId, rewriteInstruction, addToast, streamIntoBlock, updateBlock],
   )
 
-  const exportMarkdown = useCallback(() => {
-    return blocks.map((b) => b.text).join('\n\n')
-  }, [blocks])
+  const handleCopyExport = useCallback(async () => {
+    const ok = await copyRichText(blocks)
+    addToast(ok ? 'Texto copiado com formatação!' : 'Erro ao copiar.', ok ? 'success' : 'error')
+  }, [blocks, addToast])
 
-  const handleCopyExport = useCallback(() => {
-    const md = exportMarkdown()
-    navigator.clipboard.writeText(md)
-    addToast('Texto copiado para a área de transferência!', 'success')
-  }, [exportMarkdown, addToast])
+  const handleDownloadHtml = useCallback(() => {
+    exportRichText(blocks)
+    addToast('Arquivo .html exportado com sucesso!', 'success')
+  }, [blocks, addToast])
 
-  const handleDownloadExport = useCallback(() => {
-    const md = exportMarkdown()
+  const handleDownloadMd = useCallback(() => {
+    const md = blocks.map((b) => b.text).join('\n\n')
     const blob = new Blob([md], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -197,7 +198,7 @@ export default function App() {
     a.click()
     URL.revokeObjectURL(url)
     addToast('Arquivo .md exportado com sucesso!', 'success')
-  }, [exportMarkdown, addToast])
+  }, [blocks, addToast])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -410,10 +411,16 @@ export default function App() {
             Salvar
           </button>
           <button
-            onClick={handleDownloadExport}
-            className="inline-flex h-10 items-center rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
+            onClick={handleDownloadMd}
+            className="inline-flex h-10 items-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-gray-50 dark:border-gray-600 dark:bg-transparent dark:text-gray-100 dark:hover:bg-gray-800"
           >
             Exportar .md
+          </button>
+          <button
+            onClick={handleDownloadHtml}
+            className="inline-flex h-10 items-center rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
+          >
+            Exportar .html
           </button>
         </div>
         <input

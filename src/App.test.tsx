@@ -37,12 +37,22 @@ vi.mock('./io', () => ({
   readMarkdownFile: (...args: unknown[]) => mockReadMarkdownFile(...args),
 }))
 
+const mockCopyRichText = vi.fn().mockResolvedValue(true)
+const mockExportRichText = vi.fn()
+
+vi.mock('./richText', () => ({
+  copyRichText: (...args: unknown[]) => mockCopyRichText(...args),
+  exportRichText: (...args: unknown[]) => mockExportRichText(...args),
+}))
+
 beforeEach(() => {
   localStorage.clear()
   mockSaveMarkdown.mockClear()
   mockOpenMarkdown.mockClear()
   mockIsMarkdownFile.mockClear()
   mockReadMarkdownFile.mockClear()
+  mockCopyRichText.mockClear()
+  mockExportRichText.mockClear()
   delete (window as Window & { showOpenFilePicker?: unknown }).showOpenFilePicker
   useStore.setState({
     blocks: [{ id: 'block-1', text: '' }],
@@ -101,6 +111,7 @@ describe('App', () => {
     render(<App />)
     expect(screen.getByText('Copiar')).toBeInTheDocument()
     expect(screen.getByText('Exportar .md')).toBeInTheDocument()
+    expect(screen.getByText('Exportar .html')).toBeInTheDocument()
   })
 
   it('shows save and open buttons', () => {
