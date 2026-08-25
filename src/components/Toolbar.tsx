@@ -9,7 +9,7 @@ interface Props {
 const HEADINGS = [1, 2, 3, 4, 5, 6]
 
 const btnClass =
-  'flex h-6 w-6 items-center justify-center rounded-md text-ink-muted transition-colors hover:text-ink'
+  'flex h-8 w-8 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-ink/10 hover:text-ink'
 
 const activeClass = 'bg-accent/15 text-accent'
 

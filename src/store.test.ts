@@ -39,6 +39,15 @@ describe('store', () => {
     expect(blocks).toHaveLength(1)
   })
 
+  it('keeps the only block and clears its content instead of removing', () => {
+    useStore.setState({ blocks: [{ id: 'only', text: 'keep me' }] })
+    useStore.getState().removeBlock('only')
+    const { blocks } = useStore.getState()
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].id).toBe('only')
+    expect(blocks[0].text).toBe('')
+  })
+
   it('removes block from selection when deleted', () => {
     useStore.getState().addBlock('block-1')
     const secondId = useStore.getState().blocks[1].id

@@ -100,11 +100,20 @@ export const useStore = create<Store>()(
         }),
 
       removeBlock: (id) =>
-        set((s) => ({
-          blocks: s.blocks.filter((b) => b.id !== id),
-          selectedBlockIds: s.selectedBlockIds.filter((bid) => bid !== id),
-          undoStack: [s.blocks, ...s.undoStack].slice(0, MAX_UNDO),
-        })),
+        set((s) => {
+          if (s.blocks.length <= 1) {
+            return {
+              blocks: s.blocks.map((b) => (b.id === id ? { ...b, text: '' } : b)),
+              selectedBlockIds: s.selectedBlockIds.filter((bid) => bid !== id),
+              undoStack: [s.blocks, ...s.undoStack].slice(0, MAX_UNDO),
+            }
+          }
+          return {
+            blocks: s.blocks.filter((b) => b.id !== id),
+            selectedBlockIds: s.selectedBlockIds.filter((bid) => bid !== id),
+            undoStack: [s.blocks, ...s.undoStack].slice(0, MAX_UNDO),
+          }
+        }),
 
       updateBlock: (id, text) =>
         set((s) => ({

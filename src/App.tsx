@@ -3,7 +3,8 @@ import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -42,10 +43,15 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [rewriteId, setRewriteId] = useState<string | null>(null)
   const [rewriteInstruction, setRewriteInstruction] = useState('')
+  const [toolsOpen, setToolsOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
   }, [darkMode])
+
+  useEffect(() => {
+    if (useStore.getState().blocks.length === 0) addBlock()
+  }, [addBlock])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -59,7 +65,8 @@ export default function App() {
   }, [undo])
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
@@ -134,6 +141,7 @@ export default function App() {
   const handleCorrect = useCallback(
     async (id: string) => {
       if (!settings.apiKey) {
+        addToast('Configure a API Key da IA para usar esta função.', 'error')
         setSettingsOpen(true)
         return
       }
@@ -160,6 +168,7 @@ export default function App() {
   const handleRewrite = useCallback(
     async (id: string) => {
       if (!settings.apiKey) {
+        addToast('Configure a API Key da IA para usar esta função.', 'error')
         setSettingsOpen(true)
         return
       }
@@ -190,6 +199,11 @@ export default function App() {
     const ok = await copyRichText(blocks)
     addToast(ok ? 'Texto copiado com formatação!' : 'Erro ao copiar.', ok ? 'success' : 'error')
   }, [blocks, addToast])
+
+  const handleRequireApiKey = useCallback(() => {
+    addToast('Configure a API Key da IA para usar esta função.', 'error')
+    setSettingsOpen(true)
+  }, [addToast, setSettingsOpen])
 
   const handleDownloadHtml = useCallback(() => {
     exportRichText(blocks)
@@ -328,6 +342,7 @@ export default function App() {
                     Math.abs(blockIndices.get(block.id)! - firstIdx) === 1
                   }
                   onCorrect={handleCorrect}
+                  onRequireApiKey={handleRequireApiKey}
                   onRewriteToggle={(id) => setRewriteId(id)}
                   rewriteOpen={rewriteId === block.id}
                   onRewriteSubmit={handleRewrite}
@@ -346,9 +361,19 @@ export default function App() {
                   selectedBlockIds.includes(blocks[index + 1].id) && (
                     <div className="mb-7 flex items-center gap-2 pl-8 sm:pl-14">
                       <button
-                        onClick={handleBridge}
+                        onClick={() => {
+                          if (!settings.apiKey) {
+                            handleRequireApiKey()
+                            return
+                          }
+                          handleBridge()
+                        }}
                         disabled={loading}
-                        className="inline-flex h-8 items-center rounded-[4px] border border-divider bg-canvas px-3 text-[12px] font-medium text-ink-secondary transition-colors hover:text-ink disabled:opacity-50"
+                        className={`inline-flex h-8 items-center rounded-[4px] border border-divider bg-canvas px-3 text-[12px] font-medium transition-colors disabled:opacity-50 ${
+                          settings.apiKey
+                            ? 'text-ink-secondary hover:text-ink'
+                            : 'text-ink-muted opacity-50 cursor-not-allowed'
+                        }`}
                       >
                         Ligar blocos
                       </button>
@@ -367,14 +392,15 @@ export default function App() {
       </main>
 
       <footer className="fixed inset-x-0 bottom-0 border-t border-divider bg-canvas">
-        <div className="flex h-12 items-center gap-6 overflow-x-auto px-5 sm:px-9">
+        <div className="flex h-12 items-center gap-4 px-5 sm:px-9">
           <button
             onClick={() => addBlock()}
             className="h-8 shrink-0 whitespace-nowrap rounded-[4px] bg-ink px-4 text-[12px] font-medium text-canvas transition-opacity hover:opacity-90"
           >
             + Novo bloco
           </button>
-          <div className="flex shrink-0 items-center gap-4 whitespace-nowrap text-[12px] text-ink-secondary">
+
+          <div className="hidden shrink-0 items-center gap-4 whitespace-nowrap text-[12px] text-ink-secondary sm:flex">
             <button
               onClick={handleCopyExport}
               className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink"
@@ -394,7 +420,7 @@ export default function App() {
               Salvar
             </button>
           </div>
-          <div className="flex shrink-0 items-center gap-4 whitespace-nowrap text-[12px] text-ink-secondary">
+          <div className="hidden shrink-0 items-center gap-4 whitespace-nowrap text-[12px] text-ink-secondary sm:flex">
             <button
               onClick={handleDownloadMd}
               className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink"
@@ -408,9 +434,85 @@ export default function App() {
               Exportar .html
             </button>
           </div>
-          <span className="ml-auto shrink-0 text-[11px] text-ink-muted">
-            {blocks.length} bloco{blocks.length === 1 ? '' : 's'}
-          </span>
+
+          <div className="ml-auto flex items-center gap-3">
+            <span className="shrink-0 text-[11px] text-ink-muted">
+              {blocks.length} bloco{blocks.length === 1 ? '' : 's'}
+            </span>
+            <div className="relative sm:hidden">
+              <button
+                type="button"
+                onClick={() => setToolsOpen((o) => !o)}
+                aria-label="Abrir ferramentas"
+                aria-expanded={toolsOpen}
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-divider text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                  <path strokeLinecap="round" d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
+              {toolsOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setToolsOpen(false)}
+                  />
+                  <div className="absolute bottom-full right-0 mb-2 w-44 rounded-md border border-divider bg-canvas p-1 shadow-lg">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleCopyExport()
+                        setToolsOpen(false)
+                      }}
+                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                    >
+                      Copiar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleOpenClick()
+                        setToolsOpen(false)
+                      }}
+                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                    >
+                      Abrir .md
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSave()
+                        setToolsOpen(false)
+                      }}
+                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                    >
+                      Salvar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleDownloadMd()
+                        setToolsOpen(false)
+                      }}
+                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                    >
+                      Exportar .md
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleDownloadHtml()
+                        setToolsOpen(false)
+                      }}
+                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                    >
+                      Exportar .html
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
         <input
           ref={fileInputRef}
