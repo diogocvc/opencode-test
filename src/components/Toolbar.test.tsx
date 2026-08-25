@@ -66,23 +66,23 @@ describe('Toolbar', () => {
       <Toolbar style={{ ...baseStyle, heading: 2 }} onApply={vi.fn()} />,
     )
     const btn = screen.getByLabelText('Cabeçalho')
-    expect(btn.className).toContain('bg-blue-100')
+    expect(btn.className).toContain('bg-accent/15')
     expect(container).toBeTruthy()
   })
 
   it('marks blockquote button active', () => {
     render(<Toolbar style={{ ...baseStyle, blockquote: true }} onApply={vi.fn()} />)
-    expect(screen.getByLabelText('Citação').className).toContain('bg-blue-100')
+    expect(screen.getByLabelText('Citação').className).toContain('bg-accent/15')
   })
 
   it('marks bullet button active', () => {
     render(<Toolbar style={{ ...baseStyle, bullet: true }} onApply={vi.fn()} />)
-    expect(screen.getByLabelText('Lista com marcadores').className).toContain('bg-blue-100')
+    expect(screen.getByLabelText('Lista com marcadores').className).toContain('bg-accent/15')
   })
 
   it('marks numbered button active', () => {
     render(<Toolbar style={{ ...baseStyle, numbered: true }} onApply={vi.fn()} />)
-    expect(screen.getByLabelText('Lista numerada').className).toContain('bg-blue-100')
+    expect(screen.getByLabelText('Lista numerada').className).toContain('bg-accent/15')
   })
 
   it('does not prevent textarea blur', () => {

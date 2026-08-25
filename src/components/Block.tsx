@@ -1,30 +1,70 @@
-import { useCallback, useRef, useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useStore, type Block as BlockType } from '../store'
+import { useStore } from '../store'
 import { formatBlock, detectBlockStyle, type FormatAction } from '../markdown'
 import Toolbar from './Toolbar'
 
-interface Props {
-  block: BlockType
+interface BlockProps {
+  block: { id: string; text: string }
   index: number
-  isSelected: boolean
   total: number
-  eligibleForBridge?: boolean
+  isSelected: boolean
+  eligibleForBridge: boolean
+  bridgeMode?: boolean
+  isStreaming?: boolean
+  onCorrect?: (id: string) => void
+  onRewriteToggle?: (id: string) => void
+  rewriteOpen?: boolean
+  onRewriteSubmit?: (id: string) => void
+  onRewriteCancel?: () => void
+  rewriteInstruction?: string
+  onRewriteChange?: (value: string) => void
+  loading?: boolean
 }
 
-export default function Block({ block, index, isSelected, total, eligibleForBridge = false }: Props) {
-  const { updateBlock, removeBlock, moveBlock, toggleSelectBlock, addBlock, streamingBlockId, focusedBlockId, setFocusedBlockId, selectedBlockIds, activeBlockId, setActiveBlockId } = useStore()
-  const isStreaming = streamingBlockId === block.id
-  const isActive = activeBlockId === block.id
-  const bridgeMode = selectedBlockIds.length === 1 && !isSelected
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const rootRef = useRef<HTMLDivElement>(null)
-  const [below, setBelow] = useState(false)
+export default function Block({
+  block,
+  index,
+  total,
+  isSelected,
+  eligibleForBridge,
+  bridgeMode: bridgeModeProp,
+  isStreaming: isStreamingProp,
+  onCorrect,
+  onRewriteToggle,
+  rewriteOpen = false,
+  onRewriteSubmit,
+  onRewriteCancel,
+  rewriteInstruction = '',
+  onRewriteChange,
+  loading = false,
+}: BlockProps) {
+  const {
+    updateBlock,
+    removeBlock,
+    addBlock,
+    moveBlock,
+    pushUndo,
+    toggleSelectBlock,
+    setActiveBlockId,
+    activeBlockId,
+    focusedBlockId,
+    selectedBlockIds,
+    streamingBlockId,
+  } = useStore()
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: block.id,
-  })
+  useEffect(() => {
+    if (focusedBlockId === block.id && textareaRef.current) {
+      textareaRef.current.focus()
+    }
+  }, [focusedBlockId, block.id])
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const textBeforeFocus = useRef(block.text)
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: block.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -32,175 +72,247 @@ export default function Block({ block, index, isSelected, total, eligibleForBrid
     opacity: isDragging ? 0.4 : 1,
   }
 
-  useEffect(() => {
-    if (focusedBlockId === block.id && textareaRef.current) {
-      textareaRef.current.focus()
-      setFocusedBlockId(null)
-    }
-  }, [focusedBlockId, block.id, setFocusedBlockId])
+  const isActive = activeBlockId === block.id
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
-        e.preventDefault()
-        addBlock(block.id)
-      }
-    },
-    [block.id, addBlock],
-  )
+  const isStreaming = isStreamingProp ?? (streamingBlockId === block.id)
 
-  const handleBlur = useCallback(() => {
-    useStore.getState().pushUndo()
-  }, [])
+  const bridgeMode = bridgeModeProp ?? (selectedBlockIds.length === 1 && !isSelected)
+
+  const autoResize = (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }
 
   useEffect(() => {
     const ta = textareaRef.current
-    if (ta) {
-      ta.style.height = 'auto'
-      ta.style.height = `${ta.scrollHeight}px`
-    }
+    if (ta) autoResize(ta)
   }, [block.text])
 
-  useEffect(() => {
-    if (!isActive) return
-    const measure = () => {
-      const el = rootRef.current
-      if (!el) return
-      setBelow(el.getBoundingClientRect().top < 80)
-    }
-    measure()
-    window.addEventListener('scroll', measure, true)
-    window.addEventListener('resize', measure)
-    return () => {
-      window.removeEventListener('scroll', measure, true)
-      window.removeEventListener('resize', measure)
-    }
-  }, [isActive])
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    updateBlock(block.id, e.target.value)
+    autoResize(e.target)
+  }
 
-  const applyFormatting = useCallback(
-    (action: FormatAction, level?: number) => {
-      const ta = textareaRef.current
-      if (!ta) return
-      const { text, selStart, selEnd } = formatBlock(
-        block.text,
-        ta.selectionStart,
-        ta.selectionEnd,
-        action,
-        level,
-      )
-      updateBlock(block.id, text)
-      requestAnimationFrame(() => {
-        ta.focus()
-        ta.setSelectionRange(selStart, selEnd)
-      })
-    },
-    [block.id, block.text, updateBlock],
-  )
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      e.preventDefault()
+      addBlock(block.id)
+    }
+    if (e.key === 'Backspace' && block.text === '') {
+      e.preventDefault()
+      removeBlock(block.id)
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault()
+      applyFormatting('bold')
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'i') {
+      e.preventDefault()
+      applyFormatting('italic')
+    }
+  }
 
-  const setRefs = useCallback(
-    (node: HTMLDivElement | null) => {
-      rootRef.current = node
-      setNodeRef(node)
-    },
-    [setNodeRef],
-  )
+  const applyFormatting = (action: FormatAction, level?: number) => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+    const value = block.text
+    const result = formatBlock(
+      value,
+      textarea.selectionStart,
+      textarea.selectionEnd,
+      action,
+      level,
+    )
+    updateBlock(block.id, result.text)
+    requestAnimationFrame(() => {
+      textarea.focus()
+      textarea.setSelectionRange(result.selStart, result.selEnd)
+    })
+  }
+
+  const numberColor = isActive
+    ? 'text-ink-secondary'
+    : isSelected
+      ? 'text-accent'
+      : isStreaming
+        ? 'text-accent'
+        : 'text-ink-muted'
+
+  const dividerClass = isSelected ? 'border-accent/40' : 'border-divider'
 
   return (
     <div
-      ref={setRefs}
+      ref={setNodeRef}
       style={style}
-      className={`group relative flex gap-3 rounded-xl border p-4 transition-colors ${
-        isSelected
-          ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500 dark:border-blue-400 dark:bg-blue-950 dark:ring-blue-500'
-          : isStreaming
-            ? 'border-blue-400 bg-white ring-2 ring-blue-200 dark:border-blue-400 dark:bg-gray-800 dark:ring-blue-800'
-            : 'border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-800'
-      }`}
+      className={`group relative flex gap-4 py-9 ${
+        isSelected ? 'is-selected' : ''
+      } ${isStreaming ? 'is-streaming' : ''}`}
     >
-      {isActive && (
-        <div className={`absolute left-12 z-20 ${below ? 'top-full mt-2' : 'bottom-full mb-1'}`}>
-          <Toolbar
-            style={detectBlockStyle(block.text)}
-            onApply={applyFormatting}
-          />
-        </div>
-      )}
-
-      <div className="flex flex-col items-center gap-1 pt-1">
-        <button
-          {...listeners}
-          {...attributes}
-          className="cursor-grab rounded p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:cursor-grabbing"
-          title="Arrastar"
+      <div className="w-8 shrink-0 pt-1 text-right sm:w-10">
+        <span
+          className={`text-[12px] font-medium tabular-nums transition-colors ${numberColor}`}
         >
-          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-          </svg>
-        </button>
-        {index > 0 && (
-          <button
-            onClick={() => moveBlock(index, index - 1)}
-            className="rounded p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            title="Mover para cima"
-          >
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-            </svg>
-          </button>
-        )}
-        {index < total - 1 && (
-          <button
-            onClick={() => moveBlock(index, index + 1)}
-            className="rounded p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            title="Mover para baixo"
-          >
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        )}
+          {String(index + 1).padStart(2, '0')}
+        </span>
       </div>
 
-      <textarea
-        ref={textareaRef}
-        value={block.text}
-        onChange={(e) => updateBlock(block.id, e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        onFocus={() => setActiveBlockId(block.id)}
-        placeholder="Escreva seu texto aqui..."
-        className="min-h-[60px] flex-1 resize-none overflow-hidden border-0 bg-transparent p-0 text-base font-normal leading-relaxed text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500"
-        rows={1}
-      />
+      <div
+        className={`relative flex-1 min-w-0 ${
+          index < total - 1 ? `border-b ${dividerClass}` : ''
+        }`}
+      >
+        <div className="absolute right-0 top-0 flex items-center gap-0.5 opacity-30 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100">
+          <button
+            {...listeners}
+            {...attributes}
+            type="button"
+            title="Arrastar"
+            aria-label="Arrastar"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
+              <circle cx="4" cy="3" r="1.2" />
+              <circle cx="10" cy="3" r="1.2" />
+              <circle cx="4" cy="7" r="1.2" />
+              <circle cx="10" cy="7" r="1.2" />
+              <circle cx="4" cy="11" r="1.2" />
+              <circle cx="10" cy="11" r="1.2" />
+            </svg>
+          </button>
 
-      <div className="flex flex-col gap-1 pt-1">
-        <button
-          onClick={() => toggleSelectBlock(block.id)}
-          disabled={bridgeMode && !eligibleForBridge}
-          className={`rounded p-1 ${
-            isSelected
-              ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300'
-              : eligibleForBridge
-                ? 'text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 animate-pulse'
-                : bridgeMode
-                  ? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+          {index > 0 && (
+            <button
+              type="button"
+              onClick={() => moveBlock(index, index - 1)}
+              title="Mover para cima"
+              aria-label="Mover para cima"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <path d="M7 10V4M7 4L4 7M7 4l3 3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+
+          {index < total - 1 && (
+            <button
+              type="button"
+              onClick={() => moveBlock(index, index + 1)}
+              title="Mover para baixo"
+              aria-label="Mover para baixo"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <path d="M7 4v6M7 10l-3-3M7 10l3-3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => toggleSelectBlock(block.id)}
+            disabled={bridgeMode && !eligibleForBridge}
+            title="Selecionar para ligar"
+            aria-label="Selecionar para ligar"
+            className={`flex h-7 w-7 items-center justify-center rounded-md transition-colors ${
+              isSelected
+                ? 'text-accent'
+                : eligibleForBridge
+                  ? 'text-accent animate-pulse'
+                  : bridgeMode
+                    ? 'cursor-not-allowed text-ink-muted/50'
+                    : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
+            }`}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <path d="M5 9l4-4M4 6.5l.5-2.5L7 4m3 4.5L9.5 13 7 11" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => removeBlock(block.id)}
+            title="Excluir bloco"
+            aria-label="Excluir bloco"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-ink/5 hover:text-ink"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+              <path d="M3 4h8M5.5 4V3h3v1M4.5 4l.5 7h4l.5-7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+
+        <textarea
+          ref={textareaRef}
+          value={block.text}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onBlur={() => {
+            const current =
+              useStore.getState().blocks.find((b) => b.id === block.id)?.text ??
+              block.text
+            if (textBeforeFocus.current !== current) pushUndo()
+          }}
+          onFocus={() => {
+            textBeforeFocus.current = textareaRef.current?.value ?? block.text
+            setActiveBlockId(block.id)
+          }}
+          aria-label={`Bloco ${index + 1}`}
+          placeholder="Escreva seu texto aqui..."
+          rows={1}
+          className={`min-h-[60px] w-full resize-none overflow-hidden border-0 bg-transparent p-0 pr-12 text-[15px] font-normal leading-relaxed outline-none transition-colors placeholder:text-ink-muted ${
+            isActive ? 'text-ink' : 'text-ink-secondary'
           }`}
-          title="Selecionar para ligar"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-        </button>
-        <button
-          onClick={() => removeBlock(block.id)}
-          className="rounded p-1 text-gray-400 hover:text-red-500"
-          title="Excluir bloco"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+        />
+
+        {isActive && (
+          <div className="mt-2 flex animate-toolbar-in flex-wrap items-center gap-2">
+            <Toolbar style={detectBlockStyle(block.text)} onApply={applyFormatting} />
+            <span className="h-4 w-px bg-divider" />
+            <button
+              type="button"
+              onClick={() => onCorrect?.(block.id)}
+              disabled={loading || !block.text.trim()}
+              className="text-[11px] text-ink-muted transition-colors hover:text-ink disabled:opacity-30"
+            >
+              Corrigir
+            </button>
+            <button
+              type="button"
+              onClick={() => onRewriteToggle?.(block.id)}
+              disabled={loading}
+              className="text-[11px] text-ink-muted transition-colors hover:text-ink disabled:opacity-30"
+            >
+              Reescrever
+            </button>
+          </div>
+        )}
+
+        {rewriteOpen && (
+          <div className="mt-2 flex gap-2">
+            <input
+              value={rewriteInstruction}
+              onChange={(e) => onRewriteChange?.(e.target.value)}
+              placeholder="Ex: torne mais formal..."
+              className="h-9 flex-1 rounded-md border border-divider bg-transparent px-3 text-[13px] text-ink outline-none placeholder:text-ink-muted focus:border-accent"
+            />
+            <button
+              type="button"
+              onClick={() => onRewriteSubmit?.(block.id)}
+              disabled={loading}
+              className="h-9 rounded-md border border-divider px-3 text-[12px] font-medium text-ink-secondary transition-colors hover:text-ink disabled:opacity-50"
+            >
+              Ok
+            </button>
+            <button
+              type="button"
+              onClick={() => onRewriteCancel?.()}
+              className="h-9 rounded-md border border-divider px-3 text-[12px] text-ink-secondary transition-colors hover:text-ink"
+            >
+              Cancelar
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

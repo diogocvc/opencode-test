@@ -5,10 +5,66 @@
   --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --font-display: 'Bytesized', 'Inter', sans-serif;
+
+  /* Color tokens */
+  --color-canvas: #F7F6F2;
+  --color-ink: #1A1917;
+  --color-ink-secondary: #6B665E;
+  --color-ink-muted: #A8A29E;
+  --color-divider: #E6E5E1;
+  --color-accent: #9A6A2C;
+
+  /* Radius tokens */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  /* Motion tokens */
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 240ms;
+}
+
+.dark {
+  --color-canvas: #16140F;
+  --color-ink: #ECEAE4;
+  --color-ink-secondary: #B8B2A8;
+  --color-ink-muted: #6B665E;
+  --color-divider: #2A2823;
+  --color-accent: #C9A86A;
 }
 
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+@keyframes toolbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-toolbar-in {
+  animation: toolbar-in var(--duration-normal) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-toolbar-in {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

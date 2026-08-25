@@ -116,7 +116,7 @@ describe('Block', () => {
     const { container } = render(
       <Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={true} total={1} />,
     )
-    expect(container.firstChild).toHaveClass('border-blue-500')
+    expect(container.firstChild).toHaveClass('is-selected')
   })
 
   it('calls moveBlock on up button click', async () => {
@@ -138,7 +138,7 @@ describe('Block', () => {
     const { container } = render(
       <Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={false} total={1} />,
     )
-    expect(container.firstChild).toHaveClass('ring-2')
+    expect(container.firstChild).toHaveClass('is-streaming')
   })
 
   it('does not show streaming indicator for non-streaming block', () => {
@@ -146,12 +146,13 @@ describe('Block', () => {
     const { container } = render(
       <Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={false} total={1} />,
     )
-    expect(container.firstChild).not.toHaveClass('ring-2')
+    expect(container.firstChild).not.toHaveClass('is-streaming')
   })
 
-  it('pushes undo on textarea blur', () => {
+  it('pushes undo on textarea blur only when text changed', () => {
     render(<Block block={{ id: 'block-1', text: 'hello' }} index={0} isSelected={false} total={1} />)
     const textarea = screen.getByRole('textbox')
+    fireEvent.change(textarea, { target: { value: 'hello world' } })
     fireEvent.blur(textarea)
     expect(useStore.getState().undoStack).toHaveLength(1)
   })
