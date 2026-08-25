@@ -1,40 +1,26 @@
-# TEXTRIS — Instruções do Projeto (AGENTS)
+# TEXTRIS — AGENTS
 
-Editor de blocos baseado em Markdown com assistência de IA (TEXTRIS).
+Markdown block editor with AI assistance. Detailed spec: `context.md` (read before structural changes). Visual reference: `expo-ui.md`.
 
-## Convenções e arquitetura
+## Commands (verified in package.json / .github/workflows/ci.yml)
+- Dev server: `npm run dev` (Vite, http://localhost:5173)
+- Quality gate before finishing — exact CI order: `npm run lint` → `npm run test:run` → `npm run build`.
+- `npm run build` is `tsc -b && vite build`: it **typechecks via project references** (tsconfig.app.json + tsconfig.node.json) BEFORE bundling. There is no separate `typecheck` script — `build` is the typecheck gate.
+- Single test: `npx vitest run <path>` (or `npm run test:run -- <path>`). Tests use jsdom + Testing Library; setup in `src/test/setup.ts`.
 
-As regras detalhadas do projeto (stack, arquitetura, fluxos de teclado, decisões de
-BYOK/streaming/undo, layout visual Expo UI, formatos de arquivo `.md`/`.html`) estão em
-[`context.md`](./context.md). **Leia `context.md` antes de qualquer mudança estrutural.**
-
-Resumo rápido:
-- Frontend: React 19 + Vite 8 + TypeScript 6.
-- Estado: Zustand com persistência em `localStorage` (`src/store.ts`).
-- Estilo: Tailwind CSS v4, dark mode class-based (`@variant dark` em `src/index.css`).
+## Architecture gotchas
+- **Tailwind v4 is CSS-configured** via `@theme` in `src/index.css`. There is NO `tailwind.config.js` — do not add one.
+- **Dark mode is class-based**: `@variant dark (&:where(.dark, .dark *))` in `src/index.css`; the theme toggle adds/removes `.dark` on the root. Do NOT rely on `prefers-color-scheme`.
+- **Two parallel theming systems**: main UI uses token classes (`bg-canvas`, `text-ink`, `border-divider`, `text-accent`); `Toast.tsx` and `SettingsModal.tsx` instead hardcode Tailwind grays/reds/greens with `dark:` utilities. Keep new UI on the token system.
+- State: Zustand store with `localStorage` persistence in `src/store.ts` (undo history lives there too).
+- **Editor is a controlled `<textarea>`** in `src/components/Block.tsx` with pure Markdown. NO rich-text editor library — do not introduce one. "Corrigir"/"Reescrever" are AI features, not formatting.
 - Drag & drop: `@dnd-kit/core` + `@dnd-kit/sortable`.
-- Testes: Vitest + Testing Library (`src/**/*.test.ts(x)`). Comandos: `npm run test:run`, `npm run lint`, `npm run build`.
-- Deploy: Vercel (build estático). Repositório: `diogocvc/opencode-test`.
+- Markdown → HTML export uses `marked` (`src/markdown.ts`, `src/richText.ts`).
 
-## Regras gerais
-- Não introduzir biblioteca de editor rich-text; o editor é um `<textarea>` controlado (`src/components/Block.tsx`) cujo conteúdo é Markdown puro.
-- Sempre rodar `npm run test:run`, `npm run lint` e `npm run build` antes de concluir.
-- Nunca commitar secrets/API keys (BYOK fica só no `localStorage`).
+## Constraints
+- Never commit secrets / API keys. BYOK provider keys live only in `localStorage` (set via SettingsModal).
+- Deploy: static build to Vercel; `vercel.json` rewrites all paths to `index.html` (SPA). Build output: `dist/`.
 
-## Juicer Kit (agentes/skills/commands)
-
-Este projeto usa o [juicer-kit](https://github.com/diogocvc/juicer-kit). Os agentes,
-skills e comandos estão em `.opencode/` (não versionados — ver `.gitignore`):
-
-- **Agentes** (`.opencode/agents/`): `@orchestrator`, `@finder`, `@analyst`, `@architect`,
-  `@planner`, `@coder`, `@editor`, `@fixer`, `@refactorer`, `@reviewer`, `@tester`,
-  `@debugger`, `@security`, `@documenter`, `@commenter`, `@devops`, `@optimizer`.
-- **Commands** (`.opencode/commands/`): `/add-backlog`, `/start`, `/plan`, `/review`,
-  `/test`, `/security-audit`, `/document`, `/compact`, `/edit-backlog`, `/remove-backlog`.
-- **Skills** (`.opencode/skills/`): `tdd-workflow`, `security-review`, `prd-template`,
-  `api-design`, `code-review-checklist`, `context-management`.
-- **Backlog** (`backlog/`): rastreamento de tarefas do kit.
-
-Pipelines recomendadas (ver README do kit): nova feature →
-`@finder → @analyst → @architect → @planner → @coder → @reviewer → @tester → @documenter`.
-Sempre rode `@reviewer` e `@tester` após mudanças de código.
+## Local tooling (gitignored)
+- `.opencode/` (juicer-kit) and `backlog/` are gitignored — agent/skill/command workflows are local-only.
+- Workflow convention: run `@reviewer` and `@tester` after code changes.
