@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OpenCode juicer-kit (configuração local, não versionada)
+.opencode/
+backlog/
