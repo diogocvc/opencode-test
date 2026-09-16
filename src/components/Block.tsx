@@ -271,7 +271,7 @@ export default function Block({
           aria-label={`Bloco ${index + 1}`}
           placeholder="Escreva seu texto aqui..."
           rows={1}
-          className={`min-h-[60px] w-full resize-none overflow-hidden border-0 bg-transparent p-0 pr-12 text-[15px] font-normal leading-relaxed outline-none transition-colors placeholder:text-ink-muted ${
+          className={`min-h-[60px] w-full resize-none overflow-hidden border-0 bg-transparent p-0 pr-12 sm:pr-[180px] text-[15px] font-normal leading-relaxed outline-none transition-colors placeholder:text-ink-muted ${
             isActive ? 'text-ink' : 'text-ink-secondary'
           }`}
         />
