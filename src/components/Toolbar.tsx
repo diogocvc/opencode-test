@@ -59,13 +59,13 @@ export default function Toolbar({ style, onApply }: Props) {
       className="inline-flex items-center gap-0.5"
     >
       <ToolbarButton label="Negrito" onClick={() => onApply('bold')}>
-        <span className="text-[13px] font-bold">B</span>
+        <span className="text-[14px] font-bold">B</span>
       </ToolbarButton>
       <ToolbarButton label="Itálico" onClick={() => onApply('italic')}>
-        <span className="text-[13px] italic">I</span>
+        <span className="text-[14px] italic">I</span>
       </ToolbarButton>
       <ToolbarButton label="Tachado" onClick={() => onApply('strikethrough')}>
-        <span className="text-[13px] line-through">S</span>
+        <span className="text-[14px] line-through">S</span>
       </ToolbarButton>
 
       <div className="relative" ref={menuRef}>
@@ -74,7 +74,7 @@ export default function Toolbar({ style, onApply }: Props) {
           active={style.heading !== null}
           onClick={() => setHeadingOpen((v) => !v)}
         >
-          <span className="text-[12px] font-semibold">H</span>
+          <span className="text-[14px] font-semibold">H</span>
         </ToolbarButton>
         {headingOpen && (
           <div className="absolute left-0 top-full z-20 mt-1 flex w-28 flex-col overflow-hidden rounded-md border border-divider bg-canvas py-1">

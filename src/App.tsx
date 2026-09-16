@@ -287,7 +287,7 @@ export default function App() {
     <div className="min-h-screen bg-canvas font-sans text-ink">
       <header className="border-b border-divider">
         <div className="flex h-10 items-center justify-between px-5 sm:px-9">
-          <h1 className="font-display text-[12px] font-semibold uppercase tracking-[0.22em] text-ink-secondary">
+          <h1 className="font-display text-[16px] font-semibold uppercase tracking-[0.22em] text-ink-secondary">
             TEXTRIS
           </h1>
           <div className="flex items-center gap-3">
