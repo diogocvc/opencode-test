@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Bytesized&family=Space+Mono:wght@400;700&display=swap');
+
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Bytesized';
+  src: url('https://fonts.googleapis.com/css2?family=Bytesized&display=swap');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('https://fonts.googleapis.com/css2?family=Geist:wght@400;700&display=swap');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('https://fonts.googleapis.com/css2?family=Geist:wght@400;700&display=swap');
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  src: url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  src: url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+  font-style: normal;
+  font-weight: 700;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: #faf9f5;
+  color: #1b1c1a;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Bento Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  .bento-span-left {
+    grid-column: 1 / span 2;
+  }
+  
+  .bento-span-right {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .bento-span-left,
+  .bento-span-right {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  /* Reduce padding on mobile */
+  .section-padding {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  
+  /* Stack hero logo vertically on small screens */
+  .hero-logo {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  /* Reduce header height on mobile */
+  .header-height {
+    height: 56px;
+    padding: 0 24px;
+  }
+}

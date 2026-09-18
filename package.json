@@ -1,15 +1,22 @@
 {
-  "name": "opencode-test",
+  "name": "textris",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "dev": "vite",
+    "dev:landing": "npm run dev -w apps/landing",
     "build": "tsc -b && vite build",
+    "build:all": "npm run build --workspaces && npm run build",
     "lint": "eslint .",
+    "lint:all": "npm run lint --workspaces && npm run lint",
     "preview": "vite preview",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:all": "npm run test:run --workspaces && npm run test:run"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
