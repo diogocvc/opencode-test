@@ -1,4 +1,18 @@
 import type { Block } from './store'
+import { useStore } from './store'
+import pt from './i18n/pt'
+import en from './i18n/en'
+
+const translations = { pt, en }
+
+function getT() {
+  const locale = useStore.getState().locale
+  return (key: string): string => {
+    const dict = translations[locale] ?? translations.pt
+    const val = (dict as Record<string, unknown>)[key]
+    return typeof val === 'string' ? val : key
+  }
+}
 
 const SEPARATOR = '---'
 const BLOCK_SEPARATOR = `\n\n${SEPARATOR}\n\n`
@@ -34,14 +48,16 @@ declare global {
   }
 }
 
-export async function saveMarkdown(blocks: Block[], suggestedName = 'documento.md'): Promise<boolean> {
+export async function saveMarkdown(blocks: Block[], suggestedName?: string): Promise<boolean> {
+  const t = getT()
+  const name = suggestedName ?? t('io.defaultFilename')
   const content = serializeBlocks(blocks)
   const picker = window.showSaveFilePicker
   if (picker) {
     try {
       const handle = await picker({
-        suggestedName,
-        types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }],
+        suggestedName: name,
+        types: [{ description: t('io.markdownDesc'), accept: { 'text/markdown': ['.md'] } }],
       })
       const writable = await handle.createWritable?.()
       if (!writable) return false
@@ -58,19 +74,20 @@ export async function saveMarkdown(blocks: Block[], suggestedName = 'documento.m
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = suggestedName
+  a.download = name
   a.click()
   URL.revokeObjectURL(url)
   return true
 }
 
 export async function openMarkdown(): Promise<string[] | null> {
+  const t = getT()
   const picker = window.showOpenFilePicker
   if (picker) {
     try {
       const [handle] = await picker({
         multiple: false,
-        types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] } }],
+        types: [{ description: t('io.markdownDesc'), accept: { 'text/markdown': ['.md'] } }],
       })
       if (!handle) return null
       const name = handle.name

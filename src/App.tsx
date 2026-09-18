@@ -135,7 +135,7 @@ export default function App() {
       await streamIntoBlock(newBlock.id, system, user)
       addToast(t('toast.bridgeSuccess'), 'success')
     } catch (err) {
-      const message = err instanceof Error ? err.message : t('toast.bridgeError')
+      const message = t(err instanceof Error ? err.message : 'toast.bridgeError')
       addToast(message, 'error')
     } finally {
       setStreamingBlockId(null)
@@ -160,7 +160,7 @@ export default function App() {
         await streamIntoBlock(id, system, user)
         addToast(t('toast.correctSuccess'), 'success')
       } catch (err) {
-        const message = err instanceof Error ? err.message : t('toast.correctError')
+        const message = t(err instanceof Error ? err.message : 'toast.correctError')
         addToast(message, 'error')
       } finally {
         setStreamingBlockId(null)
@@ -190,7 +190,7 @@ export default function App() {
         setRewriteInstruction('')
         addToast(t('toast.rewriteSuccess'), 'success')
       } catch (err) {
-        const message = err instanceof Error ? err.message : t('toast.rewriteError')
+        const message = t(err instanceof Error ? err.message : 'toast.rewriteError')
         addToast(message, 'error')
       } finally {
         setStreamingBlockId(null)

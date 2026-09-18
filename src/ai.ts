@@ -30,9 +30,9 @@ async function fetchWithTimeout(url: string, options: RequestInit): Promise<Resp
     return res
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
-      throw new AIError('A requisição excedeu o tempo limite. Tente novamente.', 'timeout')
+      throw new AIError('ai.timeout', 'timeout')
     }
-    throw new AIError('Erro de conexão. Verifique se a API Key está correta (sem espaços extras) e se o provedor suporta CORS.', 'network')
+    throw new AIError('ai.network', 'network')
   } finally {
     clearTimeout(timeoutId)
   }
@@ -41,12 +41,12 @@ async function fetchWithTimeout(url: string, options: RequestInit): Promise<Resp
 async function handleResponseError(res: Response): Promise<void> {
   if (!res.ok) {
     if (res.status === 401 || res.status === 403)
-      throw new AIError('API Key inválida ou expirada. Verifique suas configurações.', 'auth')
+      throw new AIError('ai.auth', 'auth')
     if (res.status === 429)
-      throw new AIError('Limite de requisições excedido. Aguarde um momento e tente novamente.', 'rate_limit')
+      throw new AIError('ai.rateLimit', 'rate_limit')
     if (res.status >= 500)
-      throw new AIError('Erro no servidor do provedor. Tente novamente mais tarde.', 'server_error')
-    throw new AIError(`Erro inesperado (${res.status}). Tente novamente.`, 'unknown')
+      throw new AIError('ai.serverError', 'server_error')
+    throw new AIError(`ai.unexpected`, 'unknown')
   }
 }
 

@@ -1,5 +1,8 @@
 import { Marked } from 'marked'
 import type { Block } from './store'
+import { useStore } from './store'
+import pt from './i18n/pt'
+import en from './i18n/en'
 
 const marked = new Marked()
 
@@ -7,10 +10,20 @@ function markdownToHtmlBody(md: string): string {
   return marked.parse(md) as string
 }
 
+const translations = { pt, en }
+
+function getLang(): string {
+  const locale = useStore.getState().locale
+  const dict = translations[locale] ?? translations.pt
+  const val = (dict as Record<string, unknown>)['io.htmlLang']
+  return typeof val === 'string' ? val : 'pt-BR'
+}
+
 export function markdownToHtml(md: string): string {
   const body = markdownToHtmlBody(md)
+  const lang = getLang()
   return `<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -125,12 +138,16 @@ export async function copyRichText(blocks: Block[]): Promise<boolean> {
 }
 
 export function exportRichText(blocks: Block[]): void {
+  const locale = useStore.getState().locale
+  const dict = translations[locale] ?? translations.pt
+  const val = (dict as Record<string, unknown>)['io.defaultHtmlFilename']
+  const filename = typeof val === 'string' ? val : 'documento.html'
   const content = markdownToHtml(joinBlocks(blocks))
   const blob = new Blob([content], { type: 'text/html' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'documento.html'
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
 }

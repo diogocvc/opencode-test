@@ -1,13 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { markdownToHtml, markdownToPlainText, copyRichText, exportRichText } from './richText'
 import type { Block } from './store'
+import { useStore } from './store'
 
 describe('markdownToHtml', () => {
+  beforeEach(() => {
+    useStore.setState({ locale: 'pt' })
+  })
+
   it('wraps content in a full HTML document', () => {
     const html = markdownToHtml('hello')
     expect(html).toContain('<!DOCTYPE html>')
     expect(html).toContain('<html lang="pt-BR">')
     expect(html).toContain('hello')
+  })
+
+  it('uses correct lang attribute for en locale', () => {
+    useStore.setState({ locale: 'en' })
+    const html = markdownToHtml('hello')
+    expect(html).toContain('<html lang="en">')
   })
 
   it('converts bold markdown', () => {
