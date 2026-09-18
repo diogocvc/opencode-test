@@ -15,6 +15,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { useStore, type Block as BlockType } from './store'
+import { useT } from './i18n'
 import { callAIStream, bridgePrompt, correctPrompt, rewritePrompt } from './ai'
 import { saveMarkdown, openMarkdown, isMarkdownFile, readMarkdownFile } from './io'
 import { copyRichText, exportRichText } from './richText'
@@ -28,6 +29,7 @@ export default function App() {
     selectedBlockIds,
     loading,
     darkMode,
+    locale,
     setLoading,
     setStreamingBlockId,
     updateBlock,
@@ -36,9 +38,12 @@ export default function App() {
     addBlock,
     settings,
     toggleDarkMode,
+    setLocale,
     addToast,
     undo,
   } = useStore()
+
+  const t = useT()
 
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [rewriteId, setRewriteId] = useState<string | null>(null)
@@ -128,20 +133,20 @@ export default function App() {
     try {
       const { system, user } = bridgePrompt(blockA.text, blockB.text)
       await streamIntoBlock(newBlock.id, system, user)
-      addToast('Texto de transição gerado com sucesso!', 'success')
+      addToast(t('toast.bridgeSuccess'), 'success')
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao comunicar com a IA.'
+      const message = err instanceof Error ? err.message : t('toast.bridgeError')
       addToast(message, 'error')
     } finally {
       setStreamingBlockId(null)
       setLoading(false)
     }
-  }, [selectedBlockIds, blocks, settings, setLoading, setStreamingBlockId, addToast, streamIntoBlock])
+  }, [selectedBlockIds, blocks, settings, setLoading, setStreamingBlockId, addToast, streamIntoBlock, t])
 
   const handleCorrect = useCallback(
     async (id: string) => {
       if (!settings.apiKey) {
-        addToast('Configure a API Key da IA para usar esta função.', 'error')
+        addToast(t('toast.apiKeyRequired'), 'error')
         setSettingsOpen(true)
         return
       }
@@ -153,22 +158,22 @@ export default function App() {
       try {
         const { system, user } = correctPrompt(block.text)
         await streamIntoBlock(id, system, user)
-        addToast('Bloco corrigido com sucesso!', 'success')
+        addToast(t('toast.correctSuccess'), 'success')
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Erro ao comunicar com a IA.'
+        const message = err instanceof Error ? err.message : t('toast.correctError')
         addToast(message, 'error')
       } finally {
         setStreamingBlockId(null)
         setLoading(false)
       }
     },
-    [blocks, settings, setLoading, setStreamingBlockId, addToast, streamIntoBlock, updateBlock],
+    [blocks, settings, setLoading, setStreamingBlockId, addToast, streamIntoBlock, updateBlock, t],
   )
 
   const handleRewrite = useCallback(
     async (id: string) => {
       if (!settings.apiKey) {
-        addToast('Configure a API Key da IA para usar esta função.', 'error')
+        addToast(t('toast.apiKeyRequired'), 'error')
         setSettingsOpen(true)
         return
       }
@@ -183,32 +188,32 @@ export default function App() {
         await streamIntoBlock(id, system, user)
         setRewriteId(null)
         setRewriteInstruction('')
-        addToast('Bloco reescrito com sucesso!', 'success')
+        addToast(t('toast.rewriteSuccess'), 'success')
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Erro ao comunicar com a IA.'
+        const message = err instanceof Error ? err.message : t('toast.rewriteError')
         addToast(message, 'error')
       } finally {
         setStreamingBlockId(null)
         setLoading(false)
       }
     },
-    [blocks, settings, setLoading, setStreamingBlockId, rewriteInstruction, addToast, streamIntoBlock, updateBlock],
+    [blocks, settings, setLoading, setStreamingBlockId, rewriteInstruction, addToast, streamIntoBlock, updateBlock, t],
   )
 
   const handleCopyExport = useCallback(async () => {
     const ok = await copyRichText(blocks)
-    addToast(ok ? 'Texto copiado com formatação!' : 'Erro ao copiar.', ok ? 'success' : 'error')
-  }, [blocks, addToast])
+    addToast(ok ? t('toast.copySuccess') : t('toast.copyError'), ok ? 'success' : 'error')
+  }, [blocks, addToast, t])
 
   const handleRequireApiKey = useCallback(() => {
-    addToast('Configure a API Key da IA para usar esta função.', 'error')
+    addToast(t('toast.apiKeyRequired'), 'error')
     setSettingsOpen(true)
-  }, [addToast, setSettingsOpen])
+  }, [addToast, setSettingsOpen, t])
 
   const handleDownloadHtml = useCallback(() => {
     exportRichText(blocks)
-    addToast('Arquivo .html exportado com sucesso!', 'success')
-  }, [blocks, addToast])
+    addToast(t('toast.htmlSuccess'), 'success')
+  }, [blocks, addToast, t])
 
   const handleDownloadMd = useCallback(() => {
     const md = blocks.map((b) => b.text).join('\n\n')
@@ -219,8 +224,8 @@ export default function App() {
     a.download = 'documento.md'
     a.click()
     URL.revokeObjectURL(url)
-    addToast('Arquivo .md exportado com sucesso!', 'success')
-  }, [blocks, addToast])
+    addToast(t('toast.mdSuccess'), 'success')
+  }, [blocks, addToast, t])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -236,11 +241,11 @@ export default function App() {
   const handleSave = useCallback(async () => {
     try {
       const ok = await saveMarkdown(useStore.getState().blocks, 'documento.md')
-      if (ok) addToast('Documento salvo com sucesso!', 'success')
+      if (ok) addToast(t('toast.saveSuccess'), 'success')
     } catch {
-      addToast('Erro ao salvar o documento.', 'error')
+      addToast(t('toast.saveError'), 'error')
     }
-  }, [addToast])
+  }, [addToast, t])
 
   const handleOpenClick = useCallback(async () => {
     if (window.showOpenFilePicker) {
@@ -248,15 +253,15 @@ export default function App() {
         const texts = await openMarkdown()
         if (texts) {
           loadBlocks(texts)
-          addToast('Documento aberto com sucesso!', 'success')
+          addToast(t('toast.openSuccess'), 'success')
         }
       } catch {
-        addToast('Não foi possível abrir o arquivo.', 'error')
+        addToast(t('toast.openError'), 'error')
       }
       return
     }
     fileInputRef.current?.click()
-  }, [loadBlocks, addToast])
+  }, [loadBlocks, addToast, t])
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -264,18 +269,18 @@ export default function App() {
       e.target.value = ''
       if (!file) return
       if (!isMarkdownFile(file.name)) {
-        addToast('Apenas arquivos .md são aceitos.', 'error')
+        addToast(t('toast.invalidFile'), 'error')
         return
       }
       try {
         const texts = await readMarkdownFile(file)
         loadBlocks(texts)
-        addToast('Documento aberto com sucesso!', 'success')
+        addToast(t('toast.openSuccess'), 'success')
       } catch {
-        addToast('Não foi possível abrir o arquivo.', 'error')
+        addToast(t('toast.openError'), 'error')
       }
     },
-    [loadBlocks, addToast],
+    [loadBlocks, addToast, t],
   )
 
   const firstSelectedId = selectedBlockIds.length === 1 ? selectedBlockIds[0] : null
@@ -292,13 +297,13 @@ export default function App() {
           </a>
           <div className="flex items-center gap-3">
             {!settings.apiKey && (
-              <span className="text-[10px] text-ink-muted">API Key não configurada</span>
+              <span className="text-[10px] text-ink-muted">{t('header.apiKeyWarning')}</span>
             )}
             <button
               onClick={toggleDarkMode}
               className="flex h-6 w-6 items-center justify-center rounded-[3px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
-              title={darkMode ? 'Modo claro' : 'Modo escuro'}
-              aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              title={darkMode ? t('header.darkModeOn') : t('header.darkModeOff')}
+              aria-label={darkMode ? t('header.ariaLightMode') : t('header.ariaDarkMode')}
             >
               {darkMode ? (
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -311,10 +316,16 @@ export default function App() {
               )}
             </button>
             <button
+              onClick={() => setLocale(locale === 'pt' ? 'en' : 'pt')}
+              className="text-[11px] font-medium text-ink-muted transition-colors hover:text-ink-secondary"
+            >
+              {locale === 'pt' ? 'EN' : 'PT'}
+            </button>
+            <button
               onClick={() => setSettingsOpen(true)}
               className="text-[11px] text-ink-muted transition-colors hover:text-ink-secondary"
             >
-              Configurar IA
+              {t('header.configureAI')}
             </button>
           </div>
         </div>
@@ -322,7 +333,7 @@ export default function App() {
 
       {loading && (
         <div className="fixed left-1/2 top-3 z-20 -translate-x-1/2 rounded-[3px] border border-divider bg-canvas px-2.5 py-1 text-[10px] text-accent shadow-md">
-          IA processando...
+          {t('header.processing')}
         </div>
       )}
 
@@ -375,13 +386,13 @@ export default function App() {
                             : 'text-ink-muted opacity-50 cursor-not-allowed'
                         }`}
                       >
-                        Ligar blocos
+                        {t('bridge.link')}
                       </button>
                       <button
                         onClick={clearSelection}
                         className="inline-flex h-7 items-center rounded-[3px] border border-divider bg-canvas px-2.5 text-[11px] font-medium text-ink-secondary transition-colors hover:text-ink"
                       >
-                        Cancelar
+                        {t('bridge.cancel')}
                       </button>
                     </div>
                   )}
@@ -405,19 +416,19 @@ export default function App() {
               onClick={handleCopyExport}
               className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
-              Copiar
+              {t('footer.copy')}
             </button>
             <button
               onClick={handleOpenClick}
               className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
-              Abrir .md
+              {t('footer.open')}
             </button>
             <button
               onClick={handleSave}
               className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
-              Salvar
+              {t('footer.save')}
             </button>
           </div>
           <div className="hidden shrink-0 items-center gap-3 whitespace-nowrap text-[11px] text-ink-secondary sm:flex">
@@ -425,25 +436,25 @@ export default function App() {
               onClick={handleDownloadMd}
               className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
-              Exportar .md
+              {t('footer.exportMd')}
             </button>
             <button
               onClick={handleDownloadHtml}
               className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
-              Exportar .html
+              {t('footer.exportHtml')}
             </button>
           </div>
 
           <div className="ml-auto flex items-center gap-3">
             <span className="shrink-0 text-[10px] text-ink-muted">
-              {blocks.length} bloco{blocks.length === 1 ? '' : 's'}
+              {blocks.length}{t('footer.blockCount', { n: blocks.length })}
             </span>
             <div className="relative sm:hidden">
               <button
                 type="button"
                 onClick={() => setToolsOpen((o) => !o)}
-                aria-label="Abrir ferramentas"
+                aria-label={t('footer.openTools')}
                 aria-expanded={toolsOpen}
                 className="flex h-7 w-7 items-center justify-center rounded-[3px] border border-divider text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
               >
@@ -466,7 +477,7 @@ export default function App() {
                       }}
                       className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
-                      Copiar
+                      {t('footer.copy')}
                     </button>
                     <button
                       type="button"
@@ -476,7 +487,7 @@ export default function App() {
                       }}
                       className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
-                      Abrir .md
+                      {t('footer.open')}
                     </button>
                     <button
                       type="button"
@@ -486,7 +497,7 @@ export default function App() {
                       }}
                       className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
-                      Salvar
+                      {t('footer.save')}
                     </button>
                     <button
                       type="button"
@@ -496,7 +507,7 @@ export default function App() {
                       }}
                       className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
-                      Exportar .md
+                      {t('footer.exportMd')}
                     </button>
                     <button
                       type="button"
@@ -506,7 +517,7 @@ export default function App() {
                       }}
                       className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
-                      Exportar .html
+                      {t('footer.exportHtml')}
                     </button>
                   </div>
                 </>

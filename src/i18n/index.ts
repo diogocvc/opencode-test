@@ -2,19 +2,10 @@ import { useStore } from '../store'
 import pt from './pt'
 import en from './en'
 
-type Translations = typeof pt
-type NestedKey = keyof Translations
+type TranslationValue = string | { one: string; other: string }
+type Translations = Record<string, TranslationValue>
 
 const translations: Record<string, Translations> = { pt, en }
-
-function get(obj: Record<string, unknown>, path: string): unknown {
-  return path.split('.').reduce<unknown>((acc, key) => {
-    if (acc && typeof acc === 'object' && key in (acc as Record<string, unknown>)) {
-      return (acc as Record<string, unknown>)[key]
-    }
-    return undefined
-  }, obj)
-}
 
 export function interpolate(template: string, params: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) =>
@@ -29,15 +20,15 @@ export function pluralize(n: number, forms: { one: string; other: string }): str
 export function useT() {
   const locale = useStore((s) => s.locale)
 
-  function t(key: NestedKey, params?: Record<string, string | number>): string {
+  function t(key: string, params?: Record<string, string | number>): string {
     const dict = translations[locale] ?? translations.pt
-    const raw = get(dict as Record<string, unknown>, key as string)
+    const raw = dict[key]
 
-    if (raw === undefined) return key as string
+    if (raw === undefined) return key
 
-    if (typeof raw === 'object' && raw !== null && 'one' in raw && 'other' in raw) {
-      const n = params?.n ?? 1
-      return pluralize(n, raw as { one: string; other: string })
+    if (typeof raw === 'object' && 'one' in raw && 'other' in raw) {
+      const n = Number(params?.n ?? 1)
+      return pluralize(n, raw)
     }
 
     if (typeof raw === 'string' && params) {

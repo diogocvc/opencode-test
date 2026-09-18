@@ -59,6 +59,7 @@ beforeEach(() => {
     settings: { provider: 'openai', apiKey: '', model: 'gpt-4o-mini' },
     selectedBlockIds: [],
     loading: false,
+    locale: 'pt',
     undoStack: [],
     toasts: [],
   })
