@@ -8,6 +8,8 @@ export interface Block {
 
 export type AIProvider = 'openai' | 'anthropic' | 'groq' | 'google' | 'openrouter'
 
+export type Locale = 'pt' | 'en'
+
 export interface AISettings {
   provider: AIProvider
   apiKey: string
@@ -44,6 +46,7 @@ export interface Store {
   loading: boolean
   streamingBlockId: string | null
   darkMode: boolean
+  locale: Locale
   toasts: Toast[]
   undoStack: Block[][]
   focusedBlockId: string | null
@@ -60,6 +63,7 @@ export interface Store {
   setStreamingBlockId: (id: string | null) => void
   updateSettings: (s: Partial<AISettings>) => void
   toggleDarkMode: () => void
+  setLocale: (locale: Locale) => void
   addToast: (message: string, type: Toast['type']) => void
   removeToast: (id: string) => void
   pushUndo: () => void
@@ -75,6 +79,7 @@ export const useStore = create<Store>()(
       loading: false,
       streamingBlockId: null,
       darkMode: false,
+      locale: (typeof navigator !== 'undefined' && navigator.language.startsWith('en')) ? 'en' : 'pt',
       toasts: [],
       undoStack: [],
       focusedBlockId: null,
@@ -181,6 +186,8 @@ export const useStore = create<Store>()(
       toggleDarkMode: () =>
         set((s) => ({ darkMode: !s.darkMode })),
 
+      setLocale: (locale) => set({ locale }),
+
       addToast: (message, type) => {
         const id = `toast-${nextToastId++}`
         set((s) => ({ toasts: [...s.toasts, { id, message, type }] }))
@@ -209,6 +216,7 @@ export const useStore = create<Store>()(
         blocks: state.blocks,
         settings: state.settings,
         darkMode: state.darkMode,
+        locale: state.locale,
       }),
     },
   ),
