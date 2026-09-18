@@ -29,6 +29,26 @@ function mapRange(val: number, inMin: number, inMax: number, outMin: number, out
   return outMin + t * (outMax - outMin)
 }
 
+function MaskIcon({ src, w, h, color }: { src: string; w: number; h: number; color: string }) {
+  const mask = `url(${src})`
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        width: w,
+        height: h,
+        backgroundColor: color,
+        WebkitMaskImage: mask,
+        WebkitMaskSize: 'contain',
+        WebkitMaskRepeat: 'no-repeat',
+        maskImage: mask,
+        maskSize: 'contain',
+        maskRepeat: 'no-repeat',
+      }}
+    />
+  )
+}
+
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
@@ -172,7 +192,7 @@ export default function App() {
           borderBottom: '1px solid var(--color-divider)',
         }}
       >
-        <div style={{ display: 'flex', height: isMobile ? 56 : 64, alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '0 24px' : '0 48px', maxWidth: 1280, width: '100%' }}>
+        <div style={{ display: 'flex', height: isMobile ? 56 : 64, alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '0 24px' : '0 48px', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
             <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: 16, letterSpacing: '0.22em', lineHeight: '28px', color: 'var(--color-ink-secondary)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
               TEXTRIS
@@ -341,7 +361,7 @@ export default function App() {
       </div>
 
       {/* ── PRODUCT SHOWCASE ── */}
-      <RevealSection className="flex flex-col gap-12 items-start w-full" style={{ maxWidth: 1280, padding: isMobile ? '64px 24px' : '96px 48px' } as React.CSSProperties}>
+      <RevealSection className="flex flex-col gap-12 items-start w-full" style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '64px 24px' : '96px 48px' } as React.CSSProperties}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 768 }}>
           <div style={{ backgroundColor: colors.muted, padding: '4px 10px', display: 'inline-block' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.text, letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>
@@ -487,7 +507,7 @@ export default function App() {
       </RevealSection>
 
       {/* ── FEATURES GRID ── */}
-      <RevealSection style={{ maxWidth: 1280, padding: isMobile ? '64px 24px' : '80px 48px', width: '100%', display: 'flex', flexDirection: 'column', gap: isMobile ? 40 : 56 } as React.CSSProperties}>
+      <RevealSection style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '64px 24px' : '80px 48px', width: '100%', display: 'flex', flexDirection: 'column', gap: isMobile ? 40 : 56 } as React.CSSProperties}>
         {/* Header */}
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', paddingBottom: 24, width: '100%', flexWrap: 'wrap' as const, gap: 32 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 672 }}>
@@ -509,8 +529,8 @@ export default function App() {
           {/* Card 1 */}
           <div style={{ backgroundColor: colors.surface, boxShadow: '0px 1px 1px rgba(0,0,0,0.05)', borderRadius: 8, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 24, minHeight: 204 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={imgBlockIcon} alt="" style={{ width: 15, height: 15 }} />
+              <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MaskIcon src={imgBlockIcon} w={15} h={15} color={colors.text} />
               </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>01 / ESTRUTURA</span>
             </div>
@@ -525,8 +545,8 @@ export default function App() {
           {/* Card 2 */}
           <div style={{ backgroundColor: colors.surface, boxShadow: '0px 1px 1px rgba(0,0,0,0.05)', borderRadius: 8, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={imgDragDrop} alt="" style={{ width: 13.33, height: 16.67 }} />
+              <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MaskIcon src={imgDragDrop} w={13.33} h={16.67} color={colors.text} />
               </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>02 / FLUXO</span>
             </div>
@@ -548,8 +568,8 @@ export default function App() {
           {/* Card 3 */}
           <div style={{ backgroundColor: colors.surface, boxShadow: '0px 1px 1px rgba(0,0,0,0.05)', borderRadius: 8, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 24, minHeight: 204 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={imgAIStar} alt="" style={{ width: 18.33, height: 18.33 }} />
+              <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MaskIcon src={imgAIStar} w={18.33} h={18.33} color={colors.text} />
               </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color: 'var(--color-accent)' }}>03 / CONECTOR</span>
             </div>
@@ -598,7 +618,7 @@ export default function App() {
                 { icon: imgCoin, w: 13.33, h: 12.67, label: 'Pague Apenas pelo Consumo' },
               ].map(({ icon, w, h, label }) => (
                 <div key={label} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <img src={icon} alt="" style={{ width: w, height: h }} />
+                  <MaskIcon src={icon} w={w} h={h} color="var(--color-ink-muted)" />
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: 'var(--color-ink-muted)', letterSpacing: '0.8px' }}>{label}</span>
                 </div>
               ))}
@@ -608,8 +628,8 @@ export default function App() {
           {/* Card 5 */}
           <div style={{ backgroundColor: colors.surface, boxShadow: '0px 1px 1px rgba(0,0,0,0.05)', borderRadius: 8, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={imgMarkdown} alt="" style={{ width: 15, height: 13.33 }} />
+              <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MaskIcon src={imgMarkdown} w={15} h={13.33} color={colors.text} />
               </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>05 / MARKDOWN</span>
             </div>
@@ -625,8 +645,8 @@ export default function App() {
           {/* Card 6 */}
           <div style={{ backgroundColor: colors.surface, boxShadow: '0px 1px 1px rgba(0,0,0,0.05)', borderRadius: 8, padding: 24, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={imgFilter} alt="" style={{ width: 15, height: 15 }} />
+              <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MaskIcon src={imgFilter} w={15} h={15} color={colors.text} />
               </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>06 / REFINO</span>
             </div>
@@ -659,8 +679,8 @@ export default function App() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <img src={imgDownload} alt="" style={{ width: 13.33, height: 13.33 }} />
+              <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MaskIcon src={imgDownload} w={13.33} h={13.33} color={colors.text} />
               </div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>07 / PORTABILIDADE</span>
             </div>
@@ -680,7 +700,7 @@ export default function App() {
       </RevealSection>
 
       {/* ── CREATOR SPOTLIGHT ── */}
-      <RevealSection style={{ maxWidth: 1280, padding: isMobile ? '64px 24px' : '96px 48px', width: '100%' } as React.CSSProperties}>
+      <RevealSection style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '64px 24px' : '96px 48px', width: '100%' } as React.CSSProperties}>
         <div
           style={{
             width: '100%',
@@ -738,7 +758,7 @@ export default function App() {
       </RevealSection>
 
       {/* ── CTA FINAL ── */}
-      <RevealSection style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: isMobile ? '64px 24px' : '80px 128px' } as React.CSSProperties}>
+      <RevealSection style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: 1280, margin: '0 auto', padding: isMobile ? '64px 24px' : '80px 48px' } as React.CSSProperties}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', maxWidth: 1024, padding: isMobile ? '64px 24px' : '80px 48px', width: '100%', textAlign: 'center' as const }}>
           <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: isMobile ? 24 : 34, lineHeight: '36px', color: colors.text, letterSpacing: '-0.85px' }}>
             TEXTRIS
@@ -786,7 +806,7 @@ export default function App() {
 
       {/* ── FOOTER ── */}
       <footer style={{ backgroundColor: colors.surface, boxShadow: '0px -1px 4px rgba(0,0,0,0.03)' }}>
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-start', justifyContent: 'space-between', maxWidth: 1280, padding: isMobile ? 24 : 48, width: '100%', flexWrap: 'wrap' as const, gap: 32 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-start', justifyContent: 'space-between', maxWidth: 1280, margin: '0 auto', padding: isMobile ? 24 : 48, width: '100%', flexWrap: 'wrap' as const, gap: 32 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: 16, color: colors.text, letterSpacing: '-0.4px' }}>TEXTRIS</span>
             <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0, maxWidth: 448 }}>
@@ -815,6 +835,7 @@ export default function App() {
             alignItems: 'center',
             justifyContent: 'space-between',
             maxWidth: 1280,
+            margin: '0 auto',
             paddingLeft: isMobile ? 24 : 48,
             paddingRight: isMobile ? 24 : 48,
             paddingTop: 17,
