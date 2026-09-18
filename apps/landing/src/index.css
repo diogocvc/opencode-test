@@ -74,6 +74,14 @@ body {
   width: 100%;
 }
 
+.bento-span-left {
+  grid-column: 1 / span 2;
+}
+
+.bento-span-right {
+  grid-column: 2 / span 2;
+}
+
 /* Responsive breakpoints */
 @media (max-width: 1024px) {
   .bento-grid {

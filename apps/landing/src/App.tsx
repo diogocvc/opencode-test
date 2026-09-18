@@ -196,11 +196,13 @@ export default function App() {
             <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: 16, letterSpacing: '0.22em', lineHeight: '28px', color: 'var(--color-ink-secondary)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
               TEXTRIS
             </span>
-            <div style={{ backgroundColor: colors.muted, padding: '2px 6px' }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, letterSpacing: '0.8px', color: colors.textMuted, textTransform: 'uppercase' as const }}>
-                BYOK V1.0
-              </span>
-            </div>
+            {!isMobile && (
+              <div style={{ backgroundColor: colors.muted, padding: '2px 6px' }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, letterSpacing: '0.8px', color: colors.textMuted, textTransform: 'uppercase' as const }}>
+                  BYOK V1.0
+                </span>
+              </div>
+            )}
           </div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <button
@@ -587,7 +589,6 @@ export default function App() {
           <div
             className="bento-span-left"
             style={{
-              gridColumn: '1 / span 2',
               backgroundColor: 'var(--color-ink)',
               boxShadow: '0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -2px rgba(0,0,0,0.1)',
               borderRadius: 8,
@@ -666,7 +667,6 @@ export default function App() {
           <div
             className="bento-span-right"
             style={{
-              gridColumn: '2 / span 2',
               backgroundColor: colors.surface,
               boxShadow: '0px 1px 1px rgba(0,0,0,0.05)',
               borderRadius: 8,
