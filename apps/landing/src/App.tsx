@@ -143,44 +143,19 @@ export default function App() {
   const headerOpacity = mapRange(p, 0.75, 0.96, 0, 1)
   const headerY = mapRange(p, 0.75, 0.96, -20, 0)
 
-  // Theme colors
+  // Theme colors (app tokens)
   const colors = {
-    bg: darkMode ? '#1a1a1a' : '#faf9f5',
-    surface: darkMode ? '#2a2a2a' : '#f5f4f0',
-    muted: darkMode ? '#333333' : '#efeeea',
-    border: darkMode ? '#444444' : '#e9e8e4',
-    text: darkMode ? '#e0e0e0' : '#1b1c1a',
-    textMuted: darkMode ? '#a0a0a0' : '#444748',
-    headerBg: darkMode ? 'rgba(26,26,26,0.9)' : 'rgba(250,249,245,0.9)',
+    bg: 'var(--color-canvas)',
+    surface: 'var(--color-surface)',
+    muted: 'var(--color-muted)',
+    border: 'var(--color-divider)',
+    text: 'var(--color-ink)',
+    textMuted: 'var(--color-ink-secondary)',
+    headerBg: 'var(--color-header-bg)',
   }
 
   return (
     <div style={{ position: 'relative', width: '100%', backgroundColor: colors.bg, color: colors.text }}>
-      {/* ── THEME TOGGLE ── */}
-      <button
-        onClick={toggleDarkMode}
-        style={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          zIndex: 100,
-          width: 44,
-          height: 44,
-          borderRadius: '50%',
-          border: `1px solid ${colors.border}`,
-          backgroundColor: colors.surface,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 18,
-          boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
-        }}
-        aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {darkMode ? '☀️' : '🌙'}
-      </button>
-
       {/* ── FIXED HEADER ── */}
       <header
         style={{
@@ -194,25 +169,45 @@ export default function App() {
           pointerEvents: headerOpacity > 0.5 ? 'auto' : 'none',
           backdropFilter: 'blur(12px)',
           backgroundColor: colors.headerBg,
-          boxShadow: '0px 1px 8px 0px rgba(0,0,0,0.04)',
+          borderBottom: '1px solid var(--color-divider)',
         }}
       >
         <div style={{ display: 'flex', height: isMobile ? 56 : 64, alignItems: 'center', justifyContent: 'space-between', padding: isMobile ? '0 24px' : '0 48px', maxWidth: 1280, width: '100%' }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <span style={{ fontFamily: "'Bytesized:Regular'", fontSize: isMobile ? 16 : 20, letterSpacing: '-0.5px', lineHeight: '28px', color: colors.text }}>
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+            <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: 16, letterSpacing: '0.22em', lineHeight: '28px', color: 'var(--color-ink-secondary)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
               TEXTRIS
             </span>
             <div style={{ backgroundColor: colors.muted, padding: '2px 6px' }}>
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, letterSpacing: '0.8px', color: colors.textMuted, textTransform: 'uppercase' as const }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, letterSpacing: '0.8px', color: colors.textMuted, textTransform: 'uppercase' as const }}>
                 BYOK V1.0
               </span>
             </div>
           </div>
-          <a href="https://opencode-test-two.vercel.app" style={{ backgroundColor: colors.text, padding: '8px 16px', cursor: 'pointer', textDecoration: 'none' }}>
-            <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 12, color: colors.bg, letterSpacing: '0.6px' }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <button
+              onClick={toggleDarkMode}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+              title={darkMode ? 'Modo claro' : 'Modo escuro'}
+              aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
+            >
+              {darkMode ? (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              ) : (
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              )}
+            </button>
+            <a
+              href="https://textris-app.vercel.app"
+              className="flex h-8 items-center rounded-[4px] bg-ink px-4 text-[12px] font-medium text-canvas transition-opacity hover:opacity-90"
+              style={{ textDecoration: 'none', letterSpacing: '0.04em' }}
+            >
               ACESSAR APP
-            </span>
-          </a>
+            </a>
+          </div>
         </div>
       </header>
 
@@ -240,7 +235,7 @@ export default function App() {
               style={{
                 opacity: texOpacity,
                 transform: `translateY(${texY}px)`,
-                fontFamily: "'Bytesized:Regular'",
+                fontFamily: "'Bytesized', 'Inter', sans-serif",
                 fontSize: isMobile ? 64 : 112,
                 lineHeight: isMobile ? '64px' : '112px',
                 color: colors.text,
@@ -255,7 +250,7 @@ export default function App() {
             {/* Central T — fades in on load */}
             <div
               style={{
-                fontFamily: "'Bytesized:Regular'",
+                fontFamily: "'Bytesized', 'Inter', sans-serif",
                 fontSize: isMobile ? 72 : 124,
                 lineHeight: isMobile ? '72px' : '124px',
                 color: colors.text,
@@ -274,7 +269,7 @@ export default function App() {
               style={{
                 opacity: risOpacity,
                 transform: `translateY(${risY}px)`,
-                fontFamily: "'Bytesized:Regular'",
+                fontFamily: "'Bytesized', 'Inter', sans-serif",
                 fontSize: isMobile ? 64 : 112,
                 lineHeight: isMobile ? '64px' : '112px',
                 color: colors.text,
@@ -305,8 +300,8 @@ export default function App() {
           >
             <p
               style={{
-                fontFamily: "'Space Mono:Bold'",
-                fontWeight: 200,
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 400,
                 fontSize: isMobile ? 20 : 32,
                 lineHeight: isMobile ? '24px' : '36px',
                 color: colors.text,
@@ -336,7 +331,7 @@ export default function App() {
           >
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
               <img src={imgScrollHint} alt="" style={{ width: 8.17, height: 11.67 }} />
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.textMuted, letterSpacing: '1px', textTransform: 'uppercase' as const }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.textMuted, letterSpacing: '1px', textTransform: 'uppercase' as const }}>
                 ROLE PARA BAIXO
               </span>
             </div>
@@ -349,13 +344,13 @@ export default function App() {
       <RevealSection className="flex flex-col gap-12 items-start w-full" style={{ maxWidth: 1280, padding: isMobile ? '64px 24px' : '96px 48px' } as React.CSSProperties}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 768 }}>
           <div style={{ backgroundColor: colors.muted, padding: '4px 10px', display: 'inline-block' }}>
-            <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.text, letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.text, letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>
               INTERFACE &amp; FLUXO DE TRABALHO
             </span>
           </div>
           <h2
             style={{
-              fontFamily: "'Space Mono:Bold'",
+              fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
               fontSize: isMobile ? 20 : 28,
               lineHeight: isMobile ? '28px' : '36px',
               color: colors.text,
@@ -367,7 +362,7 @@ export default function App() {
           </h2>
           <p
             style={{
-              fontFamily: "'Geist:Regular'",
+              fontFamily: "'Inter', sans-serif",
               fontWeight: 400,
               fontSize: isMobile ? 16 : 18,
               lineHeight: isMobile ? '24px' : '30px',
@@ -395,10 +390,10 @@ export default function App() {
         >
           {/* Top ribbon */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingBottom: 16, borderBottom: `1px solid ${colors.border}` }}>
-            <span style={{ fontFamily: "'Bytesized:Regular'", fontSize: 16, color: colors.text, letterSpacing: '0.6px', textTransform: 'uppercase' as const }}>
+            <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: 16, color: colors.text, letterSpacing: '0.6px', textTransform: 'uppercase' as const }}>
               TEXTRIS
             </span>
-            <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.textMuted, letterSpacing: '0.8px', cursor: 'pointer' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.textMuted, letterSpacing: '0.8px', cursor: 'pointer' }}>
               Configurar IA
             </span>
           </div>
@@ -408,7 +403,7 @@ export default function App() {
             {/* Block 01 */}
             <div
               style={{
-                backgroundColor: darkMode ? '#333333' : '#fff',
+                backgroundColor: 'var(--color-surface)',
                 boxShadow: '0px 1px 1px rgba(0,0,0,0.05)',
                 borderRadius: 4,
                 padding: 16,
@@ -417,8 +412,8 @@ export default function App() {
                 alignItems: 'flex-start',
               }}
             >
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 13, color: colors.textMuted, lineHeight: '20px', paddingTop: 4 }}>01</span>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 15, lineHeight: '24px', color: colors.text, margin: 0, flex: 1 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color: colors.textMuted, lineHeight: '20px', paddingTop: 4 }}>01</span>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 15, lineHeight: '24px', color: colors.text, margin: 0, flex: 1 }}>
                 A mente humana raramente produz pensamentos em formato de ensaio corrido. Temos
                 epifanias soltas, anotações de campo, argumentos fortes e conclusões antecipadas que
                 precisam de encaixe sem atrito.
@@ -442,8 +437,8 @@ export default function App() {
                 alignItems: 'flex-start',
               }}
             >
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 13, color: colors.textMuted, lineHeight: '20px', paddingTop: 4 }}>02</span>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 15, lineHeight: '24px', color: colors.text, margin: 0, flex: 1 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color: colors.textMuted, lineHeight: '20px', paddingTop: 4 }}>02</span>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 15, lineHeight: '24px', color: colors.text, margin: 0, flex: 1 }}>
                 Quando quebramos a redação em peças isoladas, cada bloco adquire sua própria
                 gravidade. Você move para cima, move para baixo e ajusta a cadência textual sem perder o
                 raciocínio central.
@@ -474,17 +469,17 @@ export default function App() {
             }}
           >
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' as const }}>
-              <button style={{ backgroundColor: colors.text, display: 'flex', gap: 4, alignItems: 'center', padding: '6px 14px', border: 'none', cursor: 'pointer' }}>
-                <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 12, color: '#006c49', letterSpacing: '0.48px' }}>+</span>
-                <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 12, color: colors.bg, letterSpacing: '0.48px' }}>Novo bloco</span>
+              <button className="flex h-9 items-center gap-1 rounded-[4px] bg-ink px-4 transition-opacity hover:opacity-90" style={{ border: 'none', cursor: 'pointer' }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 14, color: 'var(--color-accent)', letterSpacing: '0.48px' }}>+</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--color-canvas)', letterSpacing: '0.48px' }}>Novo bloco</span>
               </button>
               {['Copiar', 'Abrir .md', 'Salvar', 'Exportar .md', 'Exportar .html'].map(label => (
-                <button key={label} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', padding: '6px 10px' }}>
-                  <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>{label}</span>
+                <button key={label} className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink" style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>{label}</span>
                 </button>
               ))}
             </div>
-            <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted, padding: '0 8px' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted, padding: '0 8px' }}>
               2 blocos ativos • 68 palavras
             </span>
           </div>
@@ -496,14 +491,14 @@ export default function App() {
         {/* Header */}
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', paddingBottom: 24, width: '100%', flexWrap: 'wrap' as const, gap: 32 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 672 }}>
-            <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.text, letterSpacing: '1px', textTransform: 'uppercase' as const }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.text, letterSpacing: '1px', textTransform: 'uppercase' as const }}>
               CAPACIDADES &amp; FILOSOFIA
             </span>
-            <h2 style={{ fontFamily: "'Space Mono:Bold'", fontSize: isMobile ? 20 : 28, lineHeight: isMobile ? '28px' : '36px', color: colors.text, letterSpacing: '-0.7px', margin: 0 }}>
+            <h2 style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: isMobile ? 20 : 28, lineHeight: isMobile ? '28px' : '36px', color: colors.text, letterSpacing: '-0.7px', margin: 0 }}>
               Feito para o raciocínio não-linear.
             </h2>
           </div>
-          <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: isMobile ? 14 : 15, lineHeight: isMobile ? '20px' : '24px', color: colors.textMuted, maxWidth: 448, margin: 0 }}>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 14 : 15, lineHeight: isMobile ? '20px' : '24px', color: colors.textMuted, maxWidth: 448, margin: 0 }}>
             Cada detalhe de interface foi desenhado para eliminar distrações
             e devolver ao autor o controle cirúrgico de sua narrativa.
           </p>
@@ -517,11 +512,11 @@ export default function App() {
               <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={imgBlockIcon} alt="" style={{ width: 15, height: 15 }} />
               </div>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}>01 / ESTRUTURA</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>01 / ESTRUTURA</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <h4 style={{ fontFamily: "'Geist:Bold'", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Escrita Modular por Blocos</h4>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
+              <h4 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Escrita Modular por Blocos</h4>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
                 Escreva sem se preocupar com a ordem inicial. Concentre-se em capturar a matéria-prima das suas ideias antes de definir a introdução ou o desfecho.
               </p>
             </div>
@@ -533,20 +528,20 @@ export default function App() {
               <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={imgDragDrop} alt="" style={{ width: 13.33, height: 16.67 }} />
               </div>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}>02 / FLUXO</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>02 / FLUXO</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <h4 style={{ fontFamily: "'Geist:Bold'", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Drag &amp; Drop &amp; Atalhos</h4>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
+              <h4 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Drag &amp; Drop &amp; Atalhos</h4>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
                 Reorganize parágrafos como peças num tabuleiro de Tetris. Utilize atalhos de teclado (Alt + ↑ / ↓) para deslocar parágrafos sem soltar as mãos do teclado.
               </p>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' as const }}>
-              <span style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'Space Mono:Bold'", fontSize: 13, color: colors.textMuted, display: 'inline-block' }}>⌥ Alt</span>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}>+</span>
-              <span style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'Space Mono:Bold'", fontSize: 13, color: colors.textMuted, display: 'inline-block' }}>↑</span>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}>/</span>
-              <span style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'Space Mono:Bold'", fontSize: 13, color: colors.textMuted, display: 'inline-block' }}>↓</span>
+              <span style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color: colors.textMuted, display: 'inline-block' }}>⌥ Alt</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>+</span>
+              <span style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color: colors.textMuted, display: 'inline-block' }}>↑</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>/</span>
+              <span style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color: colors.textMuted, display: 'inline-block' }}>↓</span>
             </div>
           </div>
 
@@ -556,16 +551,16 @@ export default function App() {
               <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={imgAIStar} alt="" style={{ width: 18.33, height: 18.33 }} />
               </div>
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 13, color: '#006c49' }}>03 / CONECTOR</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 13, color: 'var(--color-accent)' }}>03 / CONECTOR</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <h4 style={{ fontFamily: "'Geist:Bold'", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Ponte de IA Contextual</h4>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
+              <h4 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Ponte de IA Contextual</h4>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
                 Identificou um salto abrupto entre dois pensamentos? Clique na ponte e a IA analisa o contexto anterior e posterior para gerar uma costura textual natural.
               </p>
             </div>
             <div style={{ backgroundColor: colors.muted, padding: '4px 12px', display: 'inline-block' }}>
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.text, letterSpacing: '0.8px' }}>Elimina vácuos conceituais</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.text, letterSpacing: '0.8px' }}>Elimina vácuos conceituais</span>
             </div>
           </div>
 
@@ -574,7 +569,7 @@ export default function App() {
             className="bento-span-left"
             style={{
               gridColumn: '1 / span 2',
-              backgroundColor: '#000',
+              backgroundColor: 'var(--color-ink)',
               boxShadow: '0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -2px rgba(0,0,0,0.1)',
               borderRadius: 8,
               padding: 24,
@@ -585,14 +580,14 @@ export default function App() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: '#f5f4f0', letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>ARQUITETURA SEGURA</span>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: '#858383' }}>04 / PRIVACIDADE</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: 'var(--color-canvas)', letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>ARQUITETURA SEGURA</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: 'var(--color-ink-muted)' }}>04 / PRIVACIDADE</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 576 }}>
-              <h4 style={{ fontFamily: "'Space Mono:Bold'", fontSize: 20, lineHeight: '28px', color: '#fff', letterSpacing: '-0.5px', margin: 0 }}>
+              <h4 style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 20, lineHeight: '28px', color: 'var(--color-canvas)', letterSpacing: '-0.5px', margin: 0 }}>
                 Privacidade Total: BYOK (Bring Your Own Key)
               </h4>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 15, lineHeight: '24px', color: '#e9e8e4', margin: 0 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 15, lineHeight: '24px', color: 'var(--color-ink-muted)', margin: 0 }}>
                 Nenhum texto seu passa por servidores de terceiros gerenciados por nós. As requisições de IA saem do seu próprio browser diretamente para as APIs (OpenAI, Anthropic, Groq) usando suas chaves armazenadas no LocalStorage criptografado.
               </p>
             </div>
@@ -604,7 +599,7 @@ export default function App() {
               ].map(({ icon, w, h, label }) => (
                 <div key={label} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <img src={icon} alt="" style={{ width: w, height: h }} />
-                  <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: '#e9e8e4', letterSpacing: '0.8px' }}>{label}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: 'var(--color-ink-muted)', letterSpacing: '0.8px' }}>{label}</span>
                 </div>
               ))}
             </div>
@@ -616,15 +611,15 @@ export default function App() {
               <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={imgMarkdown} alt="" style={{ width: 15, height: 13.33 }} />
               </div>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}>05 / MARKDOWN</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>05 / MARKDOWN</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <h4 style={{ fontFamily: "'Geist:Bold'", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Markdown Puro &amp; Rico</h4>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
+              <h4 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Markdown Puro &amp; Rico</h4>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
                 Títulos, ênfases, listas numeradas, blocos de código e citações preservados sem markup proprietário. Totalmente intercambiável com Obsidian e VS Code.
               </p>
             </div>
-            <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}># H1 • **bold** • `code`</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}># H1 • **bold** • `code`</span>
           </div>
 
           {/* Card 6 */}
@@ -633,17 +628,17 @@ export default function App() {
               <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={imgFilter} alt="" style={{ width: 15, height: 15 }} />
               </div>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}>06 / REFINO</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>06 / REFINO</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <h4 style={{ fontFamily: "'Geist:Bold'", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Refino &amp; Mudança de Tom</h4>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
+              <h4 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Refino &amp; Mudança de Tom</h4>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
                 Transforme raciocínios prolixos em parágrafos contundentes, amplie exemplos técnicos ou verifique coerência argumentativa com comandos inline rápidos.
               </p>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
               {['Sintetizar', 'Expandir'].map(tag => (
-                <span key={tag} style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.textMuted, letterSpacing: '0.8px' }}>{tag}</span>
+                <span key={tag} style={{ backgroundColor: colors.muted, padding: '2px 8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.textMuted, letterSpacing: '0.8px' }}>{tag}</span>
               ))}
             </div>
           </div>
@@ -667,17 +662,17 @@ export default function App() {
               <div style={{ backgroundColor: colors.text, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img src={imgDownload} alt="" style={{ width: 13.33, height: 13.33 }} />
               </div>
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted }}>07 / PORTABILIDADE</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted }}>07 / PORTABILIDADE</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 512 }}>
-              <h4 style={{ fontFamily: "'Geist:Bold'", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Portabilidade Instantânea &amp; Off-line</h4>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
+              <h4 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 16, lineHeight: '24px', color: colors.text, margin: 0 }}>Portabilidade Instantânea &amp; Off-line</h4>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0 }}>
                 Seu conteúdo não fica refém de uma plataforma fechada. Salve com um clique em .md, exporte páginas HTML estilizadas para publicação direta ou copie todo o texto consolidado em fração de segundos.
               </p>
             </div>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const }}>
               {['.markdown', '.html', 'clipboard'].map(tag => (
-                <span key={tag} style={{ backgroundColor: colors.border, padding: '4px 12px', fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.text }}>{tag}</span>
+                <span key={tag} style={{ backgroundColor: colors.border, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.text }}>{tag}</span>
               ))}
             </div>
           </div>
@@ -691,22 +686,22 @@ export default function App() {
             width: '100%',
             borderRadius: 8,
             overflow: 'hidden',
-            backgroundColor: '#000',
+            backgroundColor: 'var(--color-ink)',
             boxShadow: '0px 20px 25px -5px rgba(0,0,0,0.1),0px 8px 10px -6px rgba(0,0,0,0.1)',
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-between', padding: isMobile ? 24 : 48, gap: 32 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: '#6cf8bb', letterSpacing: '1px', textTransform: 'uppercase' as const }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: 'var(--color-accent)', letterSpacing: '1px', textTransform: 'uppercase' as const }}>
                 DIOGO CARVALHO • PRODUCT DESIGNER &amp; PRODUCT LEADER
               </span>
-              <h3 style={{ fontFamily: "'Space Mono:Bold'", fontSize: isMobile ? 20 : 28, lineHeight: isMobile ? '28px' : '36px', color: '#fff', letterSpacing: '-0.7px', margin: 0 }}>
+              <h3 style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: isMobile ? 20 : 28, lineHeight: isMobile ? '28px' : '36px', color: 'var(--color-canvas)', letterSpacing: '-0.7px', margin: 0 }}>
                 Construindo ferramentas para a era da IA.
               </h3>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: isMobile ? 14 : 15, lineHeight: isMobile ? '20px' : '24px', color: '#e9e8e4', margin: 0, maxWidth: 640 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 14 : 15, lineHeight: isMobile ? '20px' : '24px', color: 'var(--color-ink-muted)', margin: 0, maxWidth: 640 }}>
                 "Transformo ideias complexas em produtos combinando estratégia de produto, design, tecnologia e Inteligência Artificial — desde a descoberta e sistemas até protótipos funcionais e lançamento."
               </p>
-              <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: isMobile ? 12 : 13, lineHeight: isMobile ? '18px' : '21px', color: '#858383', margin: 0, maxWidth: 640 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 12 : 13, lineHeight: isMobile ? '18px' : '21px', color: 'var(--color-ink-muted)', margin: 0, maxWidth: 640 }}>
                 O Textris nasceu da necessidade pessoal de Diogo Carvalho de desatar o nó entre pensamentos esparsos e publicações finais. Ao aplicar a metáfora dos blocos de encaixe e deixar a IA responsável apenas pelas costuras e atritos gramaticais, o foco volta a ser o raciocínio criativo.
               </p>
             </div>
@@ -714,8 +709,8 @@ export default function App() {
             <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' as const, width: '100%', borderTop: '1px solid rgba(227,226,223,0.2)', paddingTop: 17 }}>
               {['20+ anos em Design & Produto', 'Design × Tecnologia × IA'].map(badge => (
                 <div key={badge} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <div style={{ width: 8, height: 8, backgroundColor: '#6cf8bb' }} />
-                  <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: '#e9e8e4', letterSpacing: '0.8px' }}>{badge}</span>
+                  <div style={{ width: 8, height: 8, backgroundColor: 'var(--color-accent)' }} />
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: 'var(--color-ink-muted)', letterSpacing: '0.8px' }}>{badge}</span>
                 </div>
               ))}
             </div>
@@ -725,7 +720,7 @@ export default function App() {
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                backgroundColor: '#6cf8bb',
+                backgroundColor: 'var(--color-accent)',
                 display: 'inline-flex',
                 gap: 8,
                 alignItems: 'center',
@@ -733,7 +728,7 @@ export default function App() {
                 textDecoration: 'none',
               }}
             >
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 12, color: '#00714d', letterSpacing: '0.48px' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 12, color: 'var(--color-canvas)', letterSpacing: '0.48px' }}>
                 Conhecer mais em diogocvc.com
               </span>
               <img src={imgArrow} alt="" style={{ width: 12, height: 12 }} />
@@ -745,53 +740,44 @@ export default function App() {
       {/* ── CTA FINAL ── */}
       <RevealSection style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: isMobile ? '64px 24px' : '80px 128px' } as React.CSSProperties}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32, alignItems: 'center', maxWidth: 1024, padding: isMobile ? '64px 24px' : '80px 48px', width: '100%', textAlign: 'center' as const }}>
-          <span style={{ fontFamily: "'Bytesized:Regular'", fontSize: isMobile ? 24 : 34, lineHeight: '36px', color: colors.text, letterSpacing: '-0.85px' }}>
+          <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: isMobile ? 24 : 34, lineHeight: '36px', color: colors.text, letterSpacing: '-0.85px' }}>
             TEXTRIS
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-            <h3 style={{ fontFamily: "'Space Mono:Bold'", fontSize: isMobile ? 24 : 34, lineHeight: isMobile ? '28px' : '36px', color: colors.text, letterSpacing: '-0.85px', margin: 0 }}>
+            <h3 style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: isMobile ? 24 : 34, lineHeight: isMobile ? '28px' : '36px', color: colors.text, letterSpacing: '-0.85px', margin: 0 }}>
               Pronto para encaixar suas ideias?
             </h3>
-            <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: isMobile ? 16 : 18, lineHeight: isMobile ? '24px' : '30px', color: colors.textMuted, margin: 0, maxWidth: 576 }}>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 16 : 18, lineHeight: isMobile ? '24px' : '30px', color: colors.textMuted, margin: 0, maxWidth: 576 }}>
               100% Gratuito &amp; Open Source — Sem cadastro obrigatório, sem
               mensalidades ocultas. Traga sua chave e comece a escrever agora mesmo.
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' as const, justifyContent: 'center' }}>
-            <a href="https://opencode-test-two.vercel.app" style={{
-              backgroundColor: colors.text,
-              display: 'flex',
-              gap: 8,
-              alignItems: 'center',
-              padding: '14px 32px',
-              textDecoration: 'none',
-              boxShadow: '0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -2px rgba(0,0,0,0.1)',
-            }}>
-              <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 12, color: colors.bg, letterSpacing: '0.6px', textTransform: 'uppercase' as const }}>
-                ABRIR TEXTRIS NO NAVEGADOR
-              </span>
+            <a
+              href="https://textris-app.vercel.app"
+              className="flex h-9 items-center rounded-[4px] bg-ink px-6 text-[12px] font-medium text-canvas transition-opacity hover:opacity-90"
+              style={{ textDecoration: 'none', letterSpacing: '0.04em', boxShadow: '0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -2px rgba(0,0,0,0.1)' }}
+            >
+              ABRIR TEXTRIS NO NAVEGADOR
             </a>
-            <a href="https://github.com/diogocvc/opencode-test" target="_blank" rel="noopener noreferrer" style={{
-              backgroundColor: colors.muted,
-              display: 'flex',
-              gap: 8,
-              alignItems: 'center',
-              padding: '14px 24px',
-              textDecoration: 'none',
-            }}>
+            <a
+              href="https://github.com/diogocvc/opencode-test"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-9 items-center gap-2 rounded-[4px] border border-divider bg-canvas px-5 text-[12px] font-medium text-ink-secondary transition-colors hover:text-ink"
+              style={{ textDecoration: 'none', letterSpacing: '0.04em' }}
+            >
               <img src={imgTerminal} alt="" style={{ width: 15, height: 12 }} />
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 12, color: colors.text, letterSpacing: '0.6px', textTransform: 'uppercase' as const }}>
-                VER CÓDIGO NO GITHUB
-              </span>
+              VER CÓDIGO NO GITHUB
             </a>
           </div>
 
           <div style={{ display: 'flex', gap: 24, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' as const, paddingTop: 24 }}>
             {['RODA 100% NO SEU BROWSER', 'COMPATÍVEL COM MARKDOWN PADRÃO'].map(marker => (
               <div key={marker} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                <div style={{ width: 6, height: 6, backgroundColor: darkMode ? '#fff' : '#010101', borderRadius: 12 }} />
-                <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.textMuted, letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>{marker}</span>
+                <div style={{ width: 6, height: 6, backgroundColor: 'var(--color-ink)', borderRadius: 12 }} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.textMuted, letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>{marker}</span>
               </div>
             ))}
           </div>
@@ -802,8 +788,8 @@ export default function App() {
       <footer style={{ backgroundColor: colors.surface, boxShadow: '0px -1px 4px rgba(0,0,0,0.03)' }}>
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-start', justifyContent: 'space-between', maxWidth: 1280, padding: isMobile ? 24 : 48, width: '100%', flexWrap: 'wrap' as const, gap: 32 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span style={{ fontFamily: "'Bytesized:Regular'", fontSize: 16, color: colors.text, letterSpacing: '-0.4px' }}>TEXTRIS</span>
-            <p style={{ fontFamily: "'Geist:Regular'", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0, maxWidth: 448 }}>
+            <span style={{ fontFamily: "'Bytesized', 'Inter', sans-serif", fontSize: 16, color: colors.text, letterSpacing: '-0.4px' }}>TEXTRIS</span>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 13, lineHeight: '20px', color: colors.textMuted, margin: 0, maxWidth: 448 }}>
               Ambiente de escrita por blocos modulares focado em fluxo, pensamento
               linear e inteligência artificial via chave própria (BYOK).
             </p>
@@ -811,15 +797,15 @@ export default function App() {
           <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' as const }}>
             <a href="https://diogocvc.com" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', gap: 4, alignItems: 'center', textDecoration: 'none' }}>
               <img src={imgGlobe} alt="" style={{ width: 13.33, height: 13.33 }} />
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>diogocvc.com</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>diogocvc.com</span>
             </a>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', gap: 4, alignItems: 'center', textDecoration: 'none' }}>
               <img src={imgGithub} alt="" style={{ width: 13.33, height: 8 }} />
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>GitHub</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>GitHub</span>
             </a>
             <a href="mailto:oi@diogocvc.com" style={{ display: 'flex', gap: 4, alignItems: 'center', textDecoration: 'none' }}>
               <img src={imgEmail} alt="" style={{ width: 13.33, height: 10.67 }} />
-              <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>oi@diogocvc.com</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: colors.textMuted, letterSpacing: '0.48px' }}>oi@diogocvc.com</span>
             </a>
           </div>
         </div>
@@ -839,10 +825,10 @@ export default function App() {
             gap: 16,
           }}
         >
-          <span style={{ fontFamily: "'Space Mono:Bold'", fontSize: 10, color: colors.textMuted, letterSpacing: '0.8px' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.textMuted, letterSpacing: '0.8px' }}>
             © Textris. Arquitetura editorial minimalista.
           </span>
-          <span style={{ fontFamily: "'Space Mono:Regular'", fontSize: 13, color: colors.textMuted, letterSpacing: '0.8px' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.textMuted, letterSpacing: '0.8px' }}>
             Crafted with BYOK Architecture
           </span>
         </div>

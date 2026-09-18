@@ -1,40 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Bytesized&family=Space+Mono:wght@400;700&display=swap');
-
 @import 'tailwindcss';
+@variant dark (&:where(.dark, .dark *));
 
-@font-face {
-  font-family: 'Bytesized';
-  src: url('https://fonts.googleapis.com/css2?family=Bytesized&display=swap');
-  font-style: normal;
-  font-weight: 400;
+@theme {
+  --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-display: 'Bytesized', 'Inter', sans-serif;
+
+  /* Color tokens */
+  --color-canvas: #F7F6F2;
+  --color-ink: #1A1917;
+  --color-ink-secondary: #6B665E;
+  --color-ink-muted: #A8A29E;
+  --color-divider: #E6E5E1;
+  --color-accent: #9A6A2C;
+
+  /* Radius tokens */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  /* Motion tokens */
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 240ms;
 }
 
-@font-face {
-  font-family: 'Geist';
-  src: url('https://fonts.googleapis.com/css2?family=Geist:wght@400;700&display=swap');
-  font-style: normal;
-  font-weight: 400;
+.dark {
+  --color-canvas: #16140F;
+  --color-ink: #ECEAE4;
+  --color-ink-muted: #6B665E;
+  --color-divider: #2A2823;
+  --color-accent: #C9A86A;
 }
 
-@font-face {
-  font-family: 'Geist';
-  src: url('https://fonts.googleapis.com/css2?family=Geist:wght@400;700&display=swap');
-  font-style: normal;
-  font-weight: 700;
+:root {
+  --color-surface: #FFFFFF;
+  --color-muted: #F0EFEB;
+  --color-header-bg: rgba(247, 246, 242, 0.92);
 }
 
-@font-face {
-  font-family: 'Space Mono';
-  src: url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
-  font-style: normal;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: 'Space Mono';
-  src: url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
-  font-style: normal;
-  font-weight: 700;
+.dark {
+  --color-surface: #211E18;
+  --color-muted: #28261F;
+  --color-header-bg: rgba(22, 20, 15, 0.92);
 }
 
 * {
@@ -47,14 +54,11 @@ html {
 
 body {
   margin: 0;
-  background-color: #faf9f5;
-  color: #1b1c1a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.dark body {
-  background-color: #1a1a1a;
-  color: #e0e0e0;
 }
 
 ::-webkit-scrollbar {
@@ -75,11 +79,11 @@ body {
   .bento-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  
+
   .bento-span-left {
     grid-column: 1 / span 2;
   }
-  
+
   .bento-span-right {
     grid-column: 1 / -1;
   }
@@ -89,7 +93,7 @@ body {
   .bento-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .bento-span-left,
   .bento-span-right {
     grid-column: 1 / -1;
@@ -103,13 +107,13 @@ body {
     padding-left: 24px;
     padding-right: 24px;
   }
-  
+
   /* Stack hero logo vertically on small screens */
   .hero-logo {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   /* Reduce header height on mobile */
   .header-height {
     height: 56px;
