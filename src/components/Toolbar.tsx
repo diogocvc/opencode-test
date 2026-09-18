@@ -9,7 +9,7 @@ interface Props {
 const HEADINGS = [1, 2, 3, 4, 5, 6]
 
 const btnClass =
-  'flex h-8 w-8 items-center justify-center rounded-md text-ink-muted transition-colors hover:bg-ink/10 hover:text-ink'
+  'flex h-6 w-6 items-center justify-center rounded-[3px] text-ink-muted transition-colors hover:bg-surface hover:text-ink'
 
 const activeClass = 'bg-accent/15 text-accent'
 
@@ -59,13 +59,13 @@ export default function Toolbar({ style, onApply }: Props) {
       className="inline-flex items-center gap-0.5"
     >
       <ToolbarButton label="Negrito" onClick={() => onApply('bold')}>
-        <span className="text-[14px] font-bold">B</span>
+        <span className="text-[13px] font-bold">B</span>
       </ToolbarButton>
       <ToolbarButton label="Itálico" onClick={() => onApply('italic')}>
-        <span className="text-[14px] italic">I</span>
+        <span className="text-[13px] italic">I</span>
       </ToolbarButton>
       <ToolbarButton label="Tachado" onClick={() => onApply('strikethrough')}>
-        <span className="text-[14px] line-through">S</span>
+        <span className="text-[13px] line-through">S</span>
       </ToolbarButton>
 
       <div className="relative" ref={menuRef}>
@@ -74,10 +74,10 @@ export default function Toolbar({ style, onApply }: Props) {
           active={style.heading !== null}
           onClick={() => setHeadingOpen((v) => !v)}
         >
-          <span className="text-[14px] font-semibold">H</span>
+          <span className="text-[13px] font-semibold">H</span>
         </ToolbarButton>
         {headingOpen && (
-          <div className="absolute left-0 top-full z-20 mt-1 flex w-28 flex-col overflow-hidden rounded-md border border-divider bg-canvas py-1">
+          <div className="absolute left-0 top-full z-20 mt-1 flex w-28 flex-col overflow-hidden rounded-[3px] border border-divider bg-canvas py-0.5">
             {HEADINGS.map((level) => (
               <button
                 key={level}
@@ -87,28 +87,28 @@ export default function Toolbar({ style, onApply }: Props) {
                   onApply('heading', level)
                   setHeadingOpen(false)
                 }}
-                className={`flex items-center gap-2 px-3 py-1.5 text-left text-[12px] transition-colors hover:bg-ink/5 ${
+                className={`flex items-center gap-2 px-2.5 py-1 text-left text-[11px] transition-colors hover:bg-surface ${
                   style.heading === level ? 'text-accent' : 'text-ink-secondary'
                 }`}
               >
                 <span className="font-semibold">H{level}</span>
-                <span className="text-[11px] text-ink-muted">{"#".repeat(level)} Título</span>
+                <span className="text-[10px] text-ink-muted">{"#".repeat(level)} Título</span>
               </button>
             ))}
           </div>
         )}
       </div>
 
-      <div className="mx-0.5 h-4 w-px bg-divider" />
+      <div className="mx-0.5 h-3 w-px bg-divider" />
 
       <ToolbarButton label="Citação" active={style.blockquote} onClick={() => onApply('blockquote')}>
-        <span className="text-[14px] leading-none">❝</span>
+        <span className="text-[13px] leading-none">❝</span>
       </ToolbarButton>
       <ToolbarButton label="Lista com marcadores" active={style.bullet} onClick={() => onApply('bullet')}>
-        <span className="text-[14px] leading-none">•</span>
+        <span className="text-[13px] leading-none">•</span>
       </ToolbarButton>
       <ToolbarButton label="Lista numerada" active={style.numbered} onClick={() => onApply('number')}>
-        <span className="text-[12px] font-medium">1.</span>
+        <span className="text-[11px] font-medium">1.</span>
       </ToolbarButton>
     </div>
   )

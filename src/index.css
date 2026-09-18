@@ -15,8 +15,11 @@
   --color-accent: #9A6A2C;
 
   /* Radius tokens */
-  --radius-sm: 4px;
-  --radius-md: 6px;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+
+  /* Surface tokens */
+  --color-surface: #EFEDEA;
 
   /* Motion tokens */
   --duration-fast: 120ms;
@@ -26,6 +29,7 @@
 
 .dark {
   --color-canvas: #16140F;
+  --color-surface: #1E1C17;
   --color-ink: #ECEAE4;
   --color-ink-secondary: #B8B2A8;
   --color-ink-muted: #6B665E;

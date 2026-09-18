@@ -286,33 +286,33 @@ export default function App() {
   return (
     <div className="min-h-screen bg-canvas font-sans text-ink">
       <header className="border-b border-divider">
-        <div className="flex h-10 items-center justify-between px-5 sm:px-9">
-          <h1 className="font-display text-[16px] font-semibold uppercase tracking-[0.22em] text-ink-secondary">
+        <div className="flex h-[40px] items-center justify-between px-5 sm:px-9">
+          <h1 className="font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-secondary">
             TEXTRIS
           </h1>
           <div className="flex items-center gap-3">
             {!settings.apiKey && (
-              <span className="text-[11px] text-ink-muted">API Key não configurada</span>
+              <span className="text-[10px] text-ink-muted">API Key não configurada</span>
             )}
             <button
               onClick={toggleDarkMode}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+              className="flex h-6 w-6 items-center justify-center rounded-[3px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
               title={darkMode ? 'Modo claro' : 'Modo escuro'}
               aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
             >
               {darkMode ? (
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               ) : (
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
               )}
             </button>
             <button
               onClick={() => setSettingsOpen(true)}
-              className="text-[12px] text-ink-secondary transition-colors hover:text-ink"
+              className="text-[11px] text-ink-muted transition-colors hover:text-ink-secondary"
             >
               Configurar IA
             </button>
@@ -321,12 +321,12 @@ export default function App() {
       </header>
 
       {loading && (
-        <div className="fixed left-1/2 top-3 z-20 -translate-x-1/2 rounded-md border border-divider bg-canvas px-3 py-1.5 text-[12px] text-accent shadow-md">
+        <div className="fixed left-1/2 top-3 z-20 -translate-x-1/2 rounded-[3px] border border-divider bg-canvas px-2.5 py-1 text-[10px] text-accent shadow-md">
           IA processando...
         </div>
       )}
 
-      <main className="mx-auto w-full px-5 pb-28 pt-20 min-[1067px]:w-[60vw]">
+      <main className="mx-auto w-full px-5 pb-28 pt-16 min-[1067px]:max-w-[520px]">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
             {blocks.map((block, index) => (
@@ -369,7 +369,7 @@ export default function App() {
                           handleBridge()
                         }}
                         disabled={loading}
-                        className={`inline-flex h-8 items-center rounded-[4px] border border-divider bg-canvas px-3 text-[12px] font-medium transition-colors disabled:opacity-50 ${
+                        className={`inline-flex h-7 items-center rounded-[3px] border border-divider bg-canvas px-2.5 text-[11px] font-medium transition-colors disabled:opacity-50 ${
                           settings.apiKey
                             ? 'text-ink-secondary hover:text-ink'
                             : 'text-ink-muted opacity-50 cursor-not-allowed'
@@ -379,7 +379,7 @@ export default function App() {
                       </button>
                       <button
                         onClick={clearSelection}
-                        className="inline-flex h-8 items-center rounded-[4px] border border-divider bg-canvas px-3 text-[12px] font-medium text-ink-secondary transition-colors hover:text-ink"
+                        className="inline-flex h-7 items-center rounded-[3px] border border-divider bg-canvas px-2.5 text-[11px] font-medium text-ink-secondary transition-colors hover:text-ink"
                       >
                         Cancelar
                       </button>
@@ -392,51 +392,51 @@ export default function App() {
       </main>
 
       <footer className="fixed inset-x-0 bottom-0 border-t border-divider bg-canvas">
-        <div className="flex h-12 items-center gap-4 px-5 sm:px-9">
+        <div className="flex h-[44px] items-center gap-3 px-5 sm:px-9">
           <button
             onClick={() => addBlock()}
-            className="h-8 shrink-0 whitespace-nowrap rounded-[4px] bg-ink px-4 text-[12px] font-medium text-canvas transition-opacity hover:opacity-90"
+            className="h-7 shrink-0 whitespace-nowrap rounded-[3px] bg-ink px-3 text-[11px] font-medium text-canvas transition-opacity hover:opacity-90"
           >
             + Novo bloco
           </button>
 
-          <div className="hidden shrink-0 items-center gap-4 whitespace-nowrap text-[12px] text-ink-secondary sm:flex">
+          <div className="hidden shrink-0 items-center gap-3 whitespace-nowrap text-[11px] text-ink-secondary sm:flex">
             <button
               onClick={handleCopyExport}
-              className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink"
+              className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
               Copiar
             </button>
             <button
               onClick={handleOpenClick}
-              className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink"
+              className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
               Abrir .md
             </button>
             <button
               onClick={handleSave}
-              className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink"
+              className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
               Salvar
             </button>
           </div>
-          <div className="hidden shrink-0 items-center gap-4 whitespace-nowrap text-[12px] text-ink-secondary sm:flex">
+          <div className="hidden shrink-0 items-center gap-3 whitespace-nowrap text-[11px] text-ink-secondary sm:flex">
             <button
               onClick={handleDownloadMd}
-              className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink"
+              className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
               Exportar .md
             </button>
             <button
               onClick={handleDownloadHtml}
-              className="rounded-[4px] px-2 py-1 transition-colors hover:bg-ink/5 hover:text-ink"
+              className="rounded-[3px] px-1.5 py-0.5 transition-colors hover:bg-surface hover:text-ink"
             >
               Exportar .html
             </button>
           </div>
 
           <div className="ml-auto flex items-center gap-3">
-            <span className="shrink-0 text-[11px] text-ink-muted">
+            <span className="shrink-0 text-[10px] text-ink-muted">
               {blocks.length} bloco{blocks.length === 1 ? '' : 's'}
             </span>
             <div className="relative sm:hidden">
@@ -445,9 +445,9 @@ export default function App() {
                 onClick={() => setToolsOpen((o) => !o)}
                 aria-label="Abrir ferramentas"
                 aria-expanded={toolsOpen}
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-divider text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                className="flex h-7 w-7 items-center justify-center rounded-[3px] border border-divider text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                   <path strokeLinecap="round" d="M12 5v14M5 12h14" />
                 </svg>
               </button>
@@ -457,14 +457,14 @@ export default function App() {
                     className="fixed inset-0 z-40"
                     onClick={() => setToolsOpen(false)}
                   />
-                  <div className="absolute bottom-full right-0 mb-2 w-44 rounded-md border border-divider bg-canvas p-1 shadow-lg">
+                  <div className="absolute bottom-full right-0 mb-2 w-40 rounded-[3px] border border-divider bg-canvas p-1 shadow-lg">
                     <button
                       type="button"
                       onClick={() => {
                         handleCopyExport()
                         setToolsOpen(false)
                       }}
-                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                      className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
                       Copiar
                     </button>
@@ -474,7 +474,7 @@ export default function App() {
                         handleOpenClick()
                         setToolsOpen(false)
                       }}
-                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                      className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
                       Abrir .md
                     </button>
@@ -484,7 +484,7 @@ export default function App() {
                         handleSave()
                         setToolsOpen(false)
                       }}
-                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                      className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
                       Salvar
                     </button>
@@ -494,7 +494,7 @@ export default function App() {
                         handleDownloadMd()
                         setToolsOpen(false)
                       }}
-                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                      className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
                       Exportar .md
                     </button>
@@ -504,7 +504,7 @@ export default function App() {
                         handleDownloadHtml()
                         setToolsOpen(false)
                       }}
-                      className="block w-full rounded-[4px] px-3 py-2 text-left text-[12px] text-ink-secondary transition-colors hover:bg-ink/5 hover:text-ink"
+                      className="block w-full rounded-[3px] px-2.5 py-1.5 text-left text-[11px] text-ink-secondary transition-colors hover:bg-surface hover:text-ink"
                     >
                       Exportar .html
                     </button>

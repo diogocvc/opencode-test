@@ -3,26 +3,26 @@ import { useStore } from '../store'
 
 const ICONS = {
   error: (
-    <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="h-4 w-4 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   ),
   success: (
-    <svg className="h-5 w-5 text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="h-4 w-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   ),
   info: (
-    <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <svg className="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   ),
 }
 
 const BG_COLORS = {
-  error: 'border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300',
-  success: 'border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300',
-  info: 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300',
+  error: 'border-red-200/60 bg-red-50/80 text-red-700 dark:border-red-800/60 dark:bg-red-950/80 dark:text-red-300',
+  success: 'border-green-200/60 bg-green-50/80 text-green-700 dark:border-green-800/60 dark:bg-green-950/80 dark:text-green-300',
+  info: 'border-blue-200/60 bg-blue-50/80 text-blue-700 dark:border-blue-800/60 dark:bg-blue-950/80 dark:text-blue-300',
 }
 
 function ToastItem({ id, message, type }: { id: string; message: string; type: 'error' | 'success' | 'info' }) {
@@ -35,12 +35,12 @@ function ToastItem({ id, message, type }: { id: string; message: string; type: '
 
   return (
     <div
-      className={`flex items-start gap-2 rounded-lg border p-3 shadow-lg transition-all ${BG_COLORS[type]}`}
+      className={`flex items-start gap-2 rounded-[3px] border p-2.5 shadow-lg transition-all ${BG_COLORS[type]}`}
     >
       {ICONS[type]}
-      <p className="flex-1 text-sm">{message}</p>
+      <p className="flex-1 text-[12px]">{message}</p>
       <button onClick={() => removeToast(id)} className="opacity-60 hover:opacity-100">
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
@@ -54,7 +54,7 @@ export default function Toast() {
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+    <div className="fixed bottom-3 right-3 z-50 flex flex-col gap-1.5">
       {toasts.map((t) => (
         <ToastItem key={t.id} id={t.id} message={t.message} type={t.type} />
       ))}
