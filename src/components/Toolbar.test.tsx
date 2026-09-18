@@ -1,9 +1,13 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Toolbar from './Toolbar'
+import { useStore } from '../store'
 
 describe('Toolbar', () => {
+  beforeEach(() => {
+    useStore.setState({ locale: 'pt' })
+  })
   const baseStyle = {
     heading: null,
     blockquote: false,

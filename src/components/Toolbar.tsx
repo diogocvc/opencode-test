@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { type FormatAction, type BlockStyle } from '../markdown'
+import { useT } from '../i18n'
 
 interface Props {
   style: BlockStyle
@@ -41,6 +42,7 @@ function ToolbarButton({
 export default function Toolbar({ style, onApply }: Props) {
   const [headingOpen, setHeadingOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const t = useT()
 
   useEffect(() => {
     if (!headingOpen) return
@@ -58,19 +60,19 @@ export default function Toolbar({ style, onApply }: Props) {
       onMouseDown={(e) => e.preventDefault()}
       className="inline-flex items-center gap-0.5"
     >
-      <ToolbarButton label="Negrito" onClick={() => onApply('bold')}>
+      <ToolbarButton label={t('toolbar.bold')} onClick={() => onApply('bold')}>
         <span className="text-[13px] font-bold">B</span>
       </ToolbarButton>
-      <ToolbarButton label="Itálico" onClick={() => onApply('italic')}>
+      <ToolbarButton label={t('toolbar.italic')} onClick={() => onApply('italic')}>
         <span className="text-[13px] italic">I</span>
       </ToolbarButton>
-      <ToolbarButton label="Tachado" onClick={() => onApply('strikethrough')}>
+      <ToolbarButton label={t('toolbar.strikethrough')} onClick={() => onApply('strikethrough')}>
         <span className="text-[13px] line-through">S</span>
       </ToolbarButton>
 
       <div className="relative" ref={menuRef}>
         <ToolbarButton
-          label="Cabeçalho"
+          label={t('toolbar.heading')}
           active={style.heading !== null}
           onClick={() => setHeadingOpen((v) => !v)}
         >
@@ -92,7 +94,7 @@ export default function Toolbar({ style, onApply }: Props) {
                 }`}
               >
                 <span className="font-semibold">H{level}</span>
-                <span className="text-[10px] text-ink-muted">{"#".repeat(level)} Título</span>
+                <span className="text-[10px] text-ink-muted">{"#".repeat(level)}{t('toolbar.headingLevel')}</span>
               </button>
             ))}
           </div>
@@ -101,13 +103,13 @@ export default function Toolbar({ style, onApply }: Props) {
 
       <div className="mx-0.5 h-3 w-px bg-divider" />
 
-      <ToolbarButton label="Citação" active={style.blockquote} onClick={() => onApply('blockquote')}>
+      <ToolbarButton label={t('toolbar.blockquote')} active={style.blockquote} onClick={() => onApply('blockquote')}>
         <span className="text-[13px] leading-none">❝</span>
       </ToolbarButton>
-      <ToolbarButton label="Lista com marcadores" active={style.bullet} onClick={() => onApply('bullet')}>
+      <ToolbarButton label={t('toolbar.bulletList')} active={style.bullet} onClick={() => onApply('bullet')}>
         <span className="text-[13px] leading-none">•</span>
       </ToolbarButton>
-      <ToolbarButton label="Lista numerada" active={style.numbered} onClick={() => onApply('number')}>
+      <ToolbarButton label={t('toolbar.numberedList')} active={style.numbered} onClick={() => onApply('number')}>
         <span className="text-[11px] font-medium">1.</span>
       </ToolbarButton>
     </div>

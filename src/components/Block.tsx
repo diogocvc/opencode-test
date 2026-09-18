@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useStore } from '../store'
+import { useT } from '../i18n'
 import { formatBlock, detectBlockStyle, type FormatAction } from '../markdown'
 import Toolbar from './Toolbar'
 
@@ -56,6 +57,8 @@ export default function Block({
     streamingBlockId,
     settings,
   } = useStore()
+
+  const t = useT()
 
   useEffect(() => {
     if (focusedBlockId === block.id && textareaRef.current) {
@@ -171,8 +174,8 @@ export default function Block({
              {...listeners}
              {...attributes}
              type="button"
-             title="Arrastar"
-             aria-label="Arrastar"
+              title={t('block.drag')}
+              aria-label={t('block.drag')}
              className={`flex h-6 w-6 items-center justify-center rounded-[3px] ${controlColor} transition-colors hover:bg-surface hover:text-ink`}
            >
              <svg width="16" height="16" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
@@ -189,8 +192,8 @@ export default function Block({
              <button
                type="button"
                onClick={() => moveBlock(index, index - 1)}
-               title="Mover para cima"
-               aria-label="Mover para cima"
+                title={t('block.moveUp')}
+                aria-label={t('block.moveUp')}
                className={`flex h-6 w-6 items-center justify-center rounded-[3px] ${controlColor} transition-colors hover:bg-surface hover:text-ink`}
              >
                <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -203,8 +206,8 @@ export default function Block({
              <button
                type="button"
                onClick={() => moveBlock(index, index + 1)}
-               title="Mover para baixo"
-               aria-label="Mover para baixo"
+                title={t('block.moveDown')}
+                aria-label={t('block.moveDown')}
                className={`flex h-6 w-6 items-center justify-center rounded-[3px] ${controlColor} transition-colors hover:bg-surface hover:text-ink`}
              >
                <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -217,8 +220,8 @@ export default function Block({
              type="button"
              onClick={() => toggleSelectBlock(block.id)}
              disabled={bridgeMode && !eligibleForBridge}
-             title="Selecionar para ligar"
-             aria-label="Selecionar para ligar"
+              title={t('block.selectForBridge')}
+              aria-label={t('block.selectForBridge')}
              className={`flex h-6 w-6 items-center justify-center rounded-[3px] transition-colors ${
                isSelected
                  ? 'text-accent'
@@ -237,8 +240,8 @@ export default function Block({
            <button
              type="button"
              onClick={() => removeBlock(block.id)}
-             title="Excluir bloco"
-             aria-label="Excluir bloco"
+              title={t('block.delete')}
+              aria-label={t('block.delete')}
              className={`flex h-6 w-6 items-center justify-center rounded-[3px] ${controlColor} transition-colors hover:bg-surface hover:text-ink`}
            >
              <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -268,8 +271,8 @@ export default function Block({
              textBeforeFocus.current = textareaRef.current?.value ?? block.text
              setActiveBlockId(block.id)
            }}
-           aria-label={`Bloco ${index + 1}`}
-           placeholder="Escreva seu texto aqui..."
+            aria-label={`${t('block.ariaLabel')} ${index + 1}`}
+            placeholder={t('block.placeholder')}
            rows={1}
            className={`min-h-[60px] w-full resize-none overflow-hidden border-0 bg-transparent p-0 pr-10 sm:pr-[180px] text-[15px] font-normal leading-[1.65] outline-none transition-colors placeholder:text-ink-muted ${
              isActive ? 'text-ink' : 'text-ink-secondary'
@@ -296,9 +299,9 @@ export default function Block({
                    ? 'text-ink-secondary hover:bg-surface hover:text-ink'
                    : 'text-ink-muted opacity-40 cursor-not-allowed'
                }`}
-             >
-               Corrigir
-             </button>
+              >
+                {t('block.correct')}
+              </button>
              <button
                type="button"
                onClick={() => {
@@ -315,9 +318,9 @@ export default function Block({
                    ? 'text-ink-secondary hover:bg-surface hover:text-ink'
                    : 'text-ink-muted opacity-40 cursor-not-allowed'
                }`}
-             >
-               Reescrever
-             </button>
+              >
+                {t('block.rewrite')}
+              </button>
            </div>
          )}
 
@@ -326,7 +329,7 @@ export default function Block({
              <input
                value={rewriteInstruction}
                onChange={(e) => onRewriteChange?.(e.target.value)}
-               placeholder="Ex: torne mais formal..."
+                placeholder={t('block.rewritePlaceholder')}
                className="h-7 flex-1 rounded-[3px] border border-divider bg-transparent px-2.5 text-[12px] text-ink outline-none placeholder:text-ink-muted focus:border-accent"
              />
              <button
@@ -334,16 +337,16 @@ export default function Block({
                onClick={() => onRewriteSubmit?.(block.id)}
                disabled={loading}
                className="h-7 rounded-[3px] border border-divider px-2.5 text-[11px] font-medium text-ink-secondary transition-colors hover:text-ink disabled:opacity-50"
-             >
-               Ok
-             </button>
+              >
+                {t('block.ok')}
+              </button>
              <button
                type="button"
                onClick={() => onRewriteCancel?.()}
                className="h-7 rounded-[3px] border border-divider px-2.5 text-[11px] text-ink-secondary transition-colors hover:text-ink"
-             >
-               Cancelar
-             </button>
+              >
+                {t('block.cancel')}
+              </button>
            </div>
          )}
        </div>

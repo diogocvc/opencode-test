@@ -22,6 +22,7 @@ vi.mock('@dnd-kit/utilities', () => ({
 beforeEach(() => {
   localStorage.clear()
   useStore.setState({
+    locale: 'pt',
     blocks: [{ id: 'block-1', text: 'hello' }],
     settings: { provider: 'openai', apiKey: '', model: 'gpt-4o-mini' },
     selectedBlockIds: [],
