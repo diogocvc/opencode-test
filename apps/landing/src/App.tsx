@@ -13,7 +13,6 @@ const imgCoin = `${assetPathPrefix}/4212c.svg`
 const imgMarkdown = `${assetPathPrefix}/86076.svg`
 const imgFilter = `${assetPathPrefix}/71e06.svg`
 const imgDownload = `${assetPathPrefix}/d236f.svg`
-const imgArrow = `${assetPathPrefix}/06c9c.svg`
 const imgTerminal = `${assetPathPrefix}/08277.svg`
 const imgGlobe = `${assetPathPrefix}/e8d06.svg`
 const imgGithub = `${assetPathPrefix}/8586f.svg`
@@ -312,7 +311,7 @@ export default function App() {
               alignItems: 'center',
               gap: 8,
               marginTop: isMobile ? 16 : 24,
-              maxWidth: 576,
+              maxWidth: 618,
               textAlign: 'center' as const,
               padding: '0 24px',
               willChange: 'transform, opacity',
@@ -362,7 +361,7 @@ export default function App() {
 
       {/* ── PRODUCT SHOWCASE ── */}
       <RevealSection className="flex flex-col gap-12 items-start w-full" style={{ maxWidth: 1280, margin: '0 auto', padding: isMobile ? '64px 24px' : '96px 48px' } as React.CSSProperties}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 768 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 1184 }}>
           <div style={{ backgroundColor: colors.muted, padding: '4px 10px', display: 'inline-block' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: colors.text, letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>
               INTERFACE &amp; FLUXO DE TRABALHO
@@ -718,10 +717,10 @@ export default function App() {
               <h3 style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: isMobile ? 20 : 28, lineHeight: isMobile ? '28px' : '36px', color: 'var(--color-canvas)', letterSpacing: '-0.7px', margin: 0 }}>
                 Construindo ferramentas para a era da IA.
               </h3>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 14 : 15, lineHeight: isMobile ? '20px' : '24px', color: 'var(--color-ink-muted)', margin: 0, maxWidth: 640 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 14 : 15, lineHeight: isMobile ? '20px' : '24px', color: 'var(--color-ink-muted)', margin: 0, maxWidth: 1086 }}>
                 "Transformo ideias complexas em produtos combinando estratégia de produto, design, tecnologia e Inteligência Artificial — desde a descoberta e sistemas até protótipos funcionais e lançamento."
               </p>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 12 : 13, lineHeight: isMobile ? '18px' : '21px', color: 'var(--color-ink-muted)', margin: 0, maxWidth: 640 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: isMobile ? 12 : 13, lineHeight: isMobile ? '18px' : '21px', color: 'var(--color-ink-muted)', margin: 0, maxWidth: 1095 }}>
                 O Textris nasceu da necessidade pessoal de Diogo Carvalho de desatar o nó entre pensamentos esparsos e publicações finais. Ao aplicar a metáfora dos blocos de encaixe e deixar a IA responsável apenas pelas costuras e atritos gramaticais, o foco volta a ser o raciocínio criativo.
               </p>
             </div>
@@ -746,12 +745,12 @@ export default function App() {
                 alignItems: 'center',
                 padding: '12px 20px',
                 textDecoration: 'none',
+                borderRadius: 4,
               }}
             >
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 12, color: 'var(--color-canvas)', letterSpacing: '0.48px' }}>
                 Conhecer mais em diogocvc.com
               </span>
-              <img src={imgArrow} alt="" style={{ width: 12, height: 12 }} />
             </a>
           </div>
         </div>
