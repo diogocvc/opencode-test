@@ -21,6 +21,24 @@ Markdown block editor with AI assistance. Detailed spec: `context.md` (read befo
 - Never commit secrets / API keys. BYOK provider keys live only in `localStorage` (set via SettingsModal).
 - Deploy: static build to Vercel; `vercel.json` rewrites all paths to `index.html` (SPA). Build output: `dist/`.
 
+## i18n (Internationalization)
+- Custom module (no react-i18next): `src/i18n/pt.ts`, `src/i18n/en.ts`, `src/i18n/index.ts`
+- Hook `useT()` returns `{ t, locale, setLocale }` — reads locale from Zustand store
+- `locale` persisted in Zustand store via `partialize` to `localStorage['editor-blocos-storage']`
+- ~58 translation keys covering: header, footer, bridge, block, toolbar, settings, toasts, AI errors, IO
+- AI prompts (`bridgePrompt`, `correctPrompt`, `rewritePrompt`) stay in PT regardless of locale
+- Toggle `PT|EN` in header — shows opposite language label
+- Default locale detected from `navigator.language.startsWith('en')`
+- Tests: set `locale: 'pt'` in `beforeEach` via `useStore.setState({ locale: 'pt' })`
+- `richText.ts` and `io.ts` read locale from store directly (not React components) via `useStore.getState().locale`
+
+### Landing Page i18n
+- Separate React app at `apps/landing/` — own i18n system (no Zustand dependency)
+- `apps/landing/src/i18n/pt.ts`, `en.ts`, `index.ts` — ~55 strings each
+- Hook `useT()` uses `useState` + `localStorage` (lightweight, no Zustand)
+- Syncs with app via `localStorage['editor-blocos-storage'].locale`
+- Toggle `PT|EN` in header next to dark mode toggle
+
 ## Local tooling (gitignored)
 - `.opencode/` (juicer-kit) and `backlog/` are gitignored — agent/skill/command workflows are local-only.
 - Workflow convention: run `@reviewer` and `@tester` after code changes.

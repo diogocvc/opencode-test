@@ -49,7 +49,7 @@ Editor de texto baseado em blocos atômicos com assistência de IA. Cada bloco �
 - Undo também limpa a seleção atual
 
 ### Persistência (Zustand)
-- `partialize` salva apenas: `blocks`, `settings`, `darkMode`
+- `partialize` salva apenas: `blocks`, `settings`, `darkMode`, `locale`
 - Não persiste: `selectedBlockIds`, `loading`, `streamingBlockId`, `toasts`, `undoStack`
 
 ### Toast (Notificações)
@@ -62,23 +62,28 @@ Editor de texto baseado em blocos atômicos com assistência de IA. Cada bloco �
 ```
 src/
 ├── ai.ts                   # Chamadas IA (normal + streaming) + prompts + AIError
-├── store.ts                # Estado global (Zustand): blocos, seleção, settings, undo, dark mode, toasts
+├── store.ts                # Estado global (Zustand): blocos, seleção, settings, undo, dark mode, toasts, locale
 ├── io.ts                   # Salvar/abrir .md: serialize/deserialize (separador ---) + File System Access API
+├── i18n/
+│   ├── index.ts            # Hook useT() — lê locale do Zustand, retorna { t, locale, setLocale }
+│   ├── pt.ts               # Dicionário PT-BR (~58 chaves)
+│   └── en.ts               # Dicionário EN (~58 chaves)
 ├── test/
 │   └── setup.ts            # Configuração do Vitest (import @testing-library/jest-dom)
 ├── components/
 │   ├── Block.tsx           # Bloco individual: textarea, drag handle, ↑↓, seleção, bridge eligibility, streaming indicator
 │   ├── Block.test.tsx      # 20 testes
-│   ├── SettingsModal.tsx   # Modal de configuração do provedor e API Key
+│   ├── SettingsModal.tsx   # Modal de configuração do provedor e API Key (i18n via useT)
 │   ├── Toast.tsx           # Componente de notificação toast
 │   └── Toast.test.tsx      # 4 testes
-├── App.tsx                 # Layout principal: header (dark mode toggle), lista de blocos, bridge button entre blocos, footer, toast
+├── App.tsx                 # Layout principal: header (dark mode + idioma toggle), lista de blocos, bridge button, footer, toast
 ├── App.test.tsx            # 19 testes (inclui salvar/abrir .md)
 ├── main.tsx                # Entry point
 ├── index.css               # @import "tailwindcss" + @variant dark
 ├── store.test.ts           # 31 testes (blocos, seleção, settings, dark mode, toasts, undo, bridge adjacency)
 ├── ai.test.ts              # 21 testes (prompts, callAI, callAIStream 4 provedores, erros)
 ├── io.test.ts              # 12 testes (serialize/deserialize, saveMarkdown, openMarkdown, extensão)
+├── richText.ts             # Markdown → HTML + copy rich text + export .html (lang dinâmico via locale)
 └── assets/                 # Ícones SVG e hero.png
 ```
 
@@ -271,6 +276,47 @@ OpenRouter (`https://openrouter.ai`) foi adicionado como provedor compatível co
 
 ### Testes
 - 105 testes passando (store: 31, Block: 20, App: 19, Toast: 4, ai: 21, io: 12).
+
+## Fase 11 — i18n (adicionado em 18/09/2026)
+
+> Internacionalização PT-BR / EN com toggle no header e sync entre app e landing page.
+
+### Sistema de tradução
+- Módulo customizado (sem react-i18next): `src/i18n/pt.ts`, `src/i18n/en.ts`, `src/i18n/index.ts`
+- Hook `useT()` retorna `{ t, locale, setLocale }` — lê locale do Zustand store
+- ~58 chaves de tradução: header, footer, bridge, block, toolbar, settings, toasts, erros de IA, IO
+- Prompts de IA (`bridgePrompt`, `correctPrompt`, `rewritePrompt`) permanecem em PT
+- Toggle `PT|EN` no header — mostra a língua oposta
+- Locale detectado de `navigator.language.startsWith('en')` na primeira visita
+- Persistido via Zustand `partialize` em `localStorage['editor-blocos-storage']`
+
+### Testes
+- `locale: 'pt'` definido em `beforeEach` via `useStore.setState({ locale: 'pt' })` em todos os arquivos de teste
+- 169 testes passando (store: 31, Block: 20, App: 19, Toast: 4, ai: 21, io: 12, richText: 22)
+
+### Arquivos modificados
+| Arquivo | Mudanças |
+|---|---|
+| `src/store.ts` | Campo `locale: Locale` + `setLocale` + `partialize` |
+| `src/i18n/pt.ts` | Dicionário PT-BR (~58 chaves) |
+| `src/i18n/en.ts` | Dicionário EN (~58 chaves) |
+| `src/i18n/index.ts` | Hook `useT()`, `interpolate()`, `pluralize()` |
+| `src/App.tsx` | 28 strings traduzidas, toggle PT\|EN no header |
+| `src/components/Block.tsx` | 12 strings traduzidas via useT() |
+| `src/components/Toolbar.tsx` | 7+ strings traduzidas via useT() |
+| `src/components/SettingsModal.tsx` | 6 strings traduzidas via useT() |
+| `src/ai.ts` | 6 mensagens de erro usam chaves de tradução (`ai.timeout`, etc.) |
+| `src/io.ts` | Descrições de file picker e nomes de arquivo traduzidos |
+| `src/richText.ts` | Atributo `lang` dinâmico (`pt-BR`/`en`), nome de export traduzido |
+| `src/richText.test.ts` | Teste para `lang` dinâmico adicionado |
+
+### Landing Page i18n
+- App React separado em `apps/landing/` — sistema i18n independente (sem Zustand)
+- `apps/landing/src/i18n/pt.ts`, `en.ts`, `index.ts` — ~55 strings cada
+- Hook `useT()` usa `useState` + `localStorage` (leve)
+- Sync com app via `localStorage['editor-blocos-storage'].locale`
+- Toggle `PT|EN` no header ao lado do dark mode
+- ~55 strings traduzidas em `apps/landing/src/App.tsx`
 
 ## Pendentes / Próximos Passos
 
