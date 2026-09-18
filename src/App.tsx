@@ -287,7 +287,7 @@ export default function App() {
     <div className="min-h-screen bg-canvas font-sans text-ink">
       <header className="border-b border-divider">
         <div className="flex h-[40px] items-center justify-between px-5 sm:px-9">
-          <h1 className="font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-secondary">
+          <h1 className="font-display text-[16px] font-semibold uppercase tracking-[0.22em] text-ink-secondary">
             TEXTRIS
           </h1>
           <div className="flex items-center gap-3">
@@ -326,7 +326,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="mx-auto w-full px-5 pb-28 pt-16 min-[1067px]:max-w-[520px]">
+      <main className="mx-auto w-full px-5 pb-28 pt-16 min-[1067px]:max-w-[680px]">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
             {blocks.map((block, index) => (
