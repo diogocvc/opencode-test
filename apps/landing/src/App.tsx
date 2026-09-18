@@ -222,7 +222,7 @@ export default function App() {
               )}
             </button>
             <a
-              href="https://textris-app.vercel.app"
+              href="https://app.textris.xyz"
               className="flex h-8 items-center rounded-[4px] bg-ink px-4 text-[12px] font-medium text-canvas transition-opacity hover:opacity-90"
               style={{ textDecoration: 'none', letterSpacing: '0.04em' }}
             >
@@ -774,7 +774,7 @@ export default function App() {
 
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' as const, justifyContent: 'center' }}>
             <a
-              href="https://textris-app.vercel.app"
+              href="https://app.textris.xyz"
               className="flex h-9 items-center rounded-[4px] bg-ink px-6 text-[12px] font-medium text-canvas transition-opacity hover:opacity-90"
               style={{ textDecoration: 'none', letterSpacing: '0.04em', boxShadow: '0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -2px rgba(0,0,0,0.1)' }}
             >

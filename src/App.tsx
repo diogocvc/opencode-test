@@ -287,9 +287,9 @@ export default function App() {
     <div className="min-h-screen bg-canvas font-sans text-ink">
       <header className="border-b border-divider">
         <div className="flex h-[40px] items-center justify-between px-5 sm:px-9">
-          <h1 className="font-display text-[16px] font-semibold uppercase tracking-[0.22em] text-ink-secondary">
+          <a href="https://textris.xyz" className="font-display text-[16px] font-semibold uppercase tracking-[0.22em] text-ink-secondary transition-colors hover:text-ink" style={{ textDecoration: 'none' }}>
             TEXTRIS
-          </h1>
+          </a>
           <div className="flex items-center gap-3">
             {!settings.apiKey && (
               <span className="text-[10px] text-ink-muted">API Key não configurada</span>
